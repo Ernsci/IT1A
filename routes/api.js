@@ -1,12 +1,7 @@
 const express = require('express');
-const multer = require('multer');
 const router = express.Router();
-const { requireAuthApi } = require('../lib/auth');
-const { supabase, dbReady } = require('../lib/supabase');
-const { uploadImage, uploadPdf, deleteFile } = require('../lib/storage');
-const { getSite, saveSite, getGroupPhoto, saveGroupPhoto } = require('../lib/site');
-
-router.use(requireAuthApi);
+const multer = require('multer');
+const { supabase } = require('../lib/supabase');
 
 const upload = multer({
   storage: multer.memoryStorage(),
@@ -56,119 +51,17 @@ const listOrder = {
   albums: { col: 'sort_order', asc: true }
 };
 
-for (const table of Object.keys(listOrder)) {
-  router.get(`/${table}`, async (req, res) => {
-    if (!dbCheck(res)) return;
-    const { col, asc } = listOrder[table];
-    try {
-      const { data, error } = await supabase.from(table).select('*').order(col, { ascending: asc });
-      if (error) throw error;
-      res.json({ items: data || [] });
-    } catch (err) {
-      fail(res, err);
-    }
-  });
-}
-
-router.post('/posts', upload.single('file'), async (req, res) => {
-  if (!dbCheck(res)) return;
-  try {
-    const title = str(req.body.title);
-    if (!title) return res.status(400).json({ error: 'Title is required.' });
-    let cover = { url: str(req.body.cover_url), path: str(req.body.cover_path) };
-    if (req.file) cover = await uploadImage(req.file, 'posts');
-    const { data, error } = await supabase
-      .from('posts')
-      .insert({
-        title,
-        body: str(req.body.body),
-        category: req.body.category === 'dumb' ? 'dumb' : 'activity',
-        cover_url: cover.url,
-        cover_path: cover.path,
-        event_date: str(req.body.event_date) || null
-      })
-      .select()
-      .single();
-    if (error) throw error;
-    res.status(201).json({ item: data });
-  } catch (err) {
-    fail(res, err);
-  }
-});
-
-router.put('/posts/:id', upload.single('file'), async (req, res) => {
+router.get('/notes/:id/download', async (req, res) => {
   if (!dbCheck(res)) return;
   try {
     const { id } = req.params;
-    const title = str(req.body.title);
-    if (!title) return res.status(400).json({ error: 'Title is required.' });
-    const patch = {
-      title,
-      body: str(req.body.body),
-      category: req.body.category === 'dumb' ? 'dumb' : 'activity',
-      event_date: str(req.body.event_date) || null
-    };
-    if (req.file) {
-      const { data: existing } = await supabase.from('posts').select('cover_path').eq('id', id).maybeSingle();
-      const cover = await uploadImage(req.file, 'posts');
-      patch.cover_url = cover.url;
-      patch.cover_path = cover.path;
-      if (existing && existing.cover_path) await deleteFile(existing.cover_path);
-    }
-    const { data, error } = await supabase.from('posts').update(patch).eq('id', id).select().single();
+    const { data: existing } = await supabase.from('notes').select('path').eq('id', id).maybeSingle();
+    if (!existing || !existing.path) return res.status(404).json({ error: 'File not found' });
+    const { error } = await supabase.storage.from('media').download(existing.path);
     if (error) throw error;
-    res.json({ item: data });
-  } catch (err) {
-    fail(res, err);
-  }
-});
-
-router.delete('/posts/:id', async (req, res) => {
-  if (!dbCheck(res)) return;
-  try {
-    const { id } = req.params;
-    const { data: existing } = await supabase.from('posts').select('cover_path').eq('id', id).maybeSingle();
-    const { error } = await supabase.from('posts').delete().eq('id', id);
-    if (error) throw error;
-    if (existing && existing.cover_path) await deleteFile(existing.cover_path);
-    res.json({ ok: true });
-  } catch (err) {
-    fail(res, err);
-  }
-});
-
-router.post('/photos', upload.single('file'), async (req, res) => {
-  if (!dbCheck(res)) return;
-  try {
-    if (!req.file) return res.status(400).json({ error: 'Pick an image to upload.' });
-    const { url, path } = await uploadImage(req.file, 'pictures');
-    const { data, error } = await supabase
-      .from('photos')
-      .insert({
-        title: str(req.body.title),
-        caption: str(req.body.caption),
-        album: str(req.body.album) || 'General',
-        url,
-        path
-      })
-      .select()
-      .single();
-    if (error) throw error;
-    res.status(201).json({ item: data });
-  } catch (err) {
-    fail(res, err);
-  }
-});
-
-router.delete('/photos/:id', async (req, res) => {
-  if (!dbCheck(res)) return;
-  try {
-    const { id } = req.params;
-    const { data: existing } = await supabase.from('photos').select('path').eq('id', id).maybeSingle();
-    const { error } = await supabase.from('photos').delete().eq('id', id);
-    if (error) throw error;
-    if (existing && existing.path) await deleteFile(existing.path);
-    res.json({ ok: true });
+    res.set('Content-Type', 'application/pdf');
+    res.set('Content-Disposition', `attachment; filename="${existing.title || 'note'}.pdf"`);
+    res.send();
   } catch (err) {
     fail(res, err);
   }
@@ -178,12 +71,11 @@ router.post('/notes', uploadPdfMiddleware.single('file'), async (req, res) => {
   if (!dbCheck(res)) return;
   try {
     if (!req.file) return res.status(400).json({ error: 'Pick a PDF to upload.' });
-    const title = str(req.body.title) || req.file.originalname.replace(/\.pdf$/i, '').slice(0, 120);
     const { url, path } = await uploadPdf(req.file, 'notes');
     const { data, error } = await supabase
       .from('notes')
       .insert({
-        title,
+        title: str(req.body.title),
         description: str(req.body.description),
         subject: str(req.body.subject),
         url,
@@ -213,17 +105,12 @@ router.delete('/notes/:id', async (req, res) => {
   }
 });
 
-router.get('/notes/:id/download', async (req, res) => {
+router.get('/albums', async (req, res) => {
   if (!dbCheck(res)) return;
   try {
-    const { id } = req.params;
-    const { data: existing } = await supabase.from('notes').select('path').eq('id', id).maybeSingle();
-    if (!existing || !existing.path) return res.status(404).json({ error: 'File not found' });
-    const { error } = await supabase.storage.from('media').download(existing.path);
+    const { data, error } = await supabase.from('albums').select('*').order('sort_order', { ascending: true });
     if (error) throw error;
-    res.set('Content-Type', 'application/pdf');
-    res.set('Content-Disposition', `attachment; filename="${existing.title || 'note'}.pdf"`);
-    res.send();
+    res.json({ items: data || [] });
   } catch (err) {
     fail(res, err);
   }
@@ -236,11 +123,7 @@ router.post('/albums', upload.single('file'), async (req, res) => {
     if (!name) return res.status(400).json({ error: 'Album name is required.' });
     const { data, error } = await supabase
       .from('albums')
-      .insert({
-        name,
-        description: str(req.body.description),
-        sort_order: parseInt(req.body.sort_order, 10) || 0
-      })
+      .insert({ name, description: str(req.body.description), sort_order: parseInt(req.body.sort_order, 10) || 0 })
       .select()
       .single();
     if (error) {
@@ -263,11 +146,7 @@ router.put('/albums/:id', upload.single('file'), async (req, res) => {
     const { data: existing } = await supabase.from('albums').select('name').eq('id', id).maybeSingle();
     const { data, error } = await supabase
       .from('albums')
-      .update({
-        name,
-        description: str(req.body.description),
-        sort_order: parseInt(req.body.sort_order, 10) || 0
-      })
+      .update({ name, description: str(req.body.description), sort_order: parseInt(req.body.sort_order, 10) || 0 })
       .eq('id', id)
       .select()
       .single();
@@ -308,18 +187,10 @@ router.post('/officers', upload.single('file'), async (req, res) => {
     const position = str(req.body.position);
     if (!name || !position) return res.status(400).json({ error: 'Name and position are required.' });
     if (!req.file) return res.status(400).json({ error: 'Picture is required.' });
-    const photo = await uploadImage(req.file, 'officers');
+    const { url, path } = await uploadImage(req.file, 'officers');
     const { data, error } = await supabase
       .from('officers')
-      .insert({
-        name,
-        position,
-        quote: str(req.body.quote),
-        photo_url: photo.url,
-        photo_path: photo.path,
-        sort_order: parseInt(req.body.sort_order, 10) || 0,
-        birthdate: str(req.body.birthdate) || null
-      })
+      .insert({ name, position, quote: str(req.body.quote), photo_url: url, photo_path: path, sort_order: parseInt(req.body.sort_order, 10) || 0, birthdate: str(req.body.birthdate) || null })
       .select()
       .single();
     if (error) throw error;
@@ -336,13 +207,7 @@ router.put('/officers/:id', upload.single('file'), async (req, res) => {
     const name = str(req.body.name);
     const position = str(req.body.position);
     if (!name || !position) return res.status(400).json({ error: 'Name and position are required.' });
-    const patch = {
-      name,
-      position,
-      quote: str(req.body.quote),
-      sort_order: parseInt(req.body.sort_order, 10) || 0,
-      birthdate: str(req.body.birthdate) || null
-    };
+    const patch = { name, position, quote: str(req.body.quote), sort_order: parseInt(req.body.sort_order, 10) || 0, birthdate: str(req.body.birthdate) || null };
     if (req.file) {
       const { data: existing } = await supabase.from('officers').select('photo_path').eq('id', id).maybeSingle();
       const photo = await uploadImage(req.file, 'officers');
@@ -381,14 +246,7 @@ router.post('/students', upload.single('file'), async (req, res) => {
     const photo = await uploadImage(req.file, 'students');
     const { data, error } = await supabase
       .from('students')
-      .insert({
-        name,
-        nickname: str(req.body.nickname),
-        motto: str(req.body.motto),
-        photo_url: photo.url,
-        photo_path: photo.path,
-        birthdate: str(req.body.birthdate) || null
-      })
+      .insert({ name, nickname: str(req.body.nickname), photo_url: photo.url, photo_path: photo.path, birthdate: str(req.body.birthdate) || null })
       .select()
       .single();
     if (error) throw error;
@@ -404,7 +262,7 @@ router.put('/students/:id', upload.single('file'), async (req, res) => {
     const { id } = req.params;
     const name = str(req.body.name);
     if (!name) return res.status(400).json({ error: 'Name is required.' });
-    const patch = { name, nickname: str(req.body.nickname), motto: str(req.body.motto), birthdate: str(req.body.birthdate) || null };
+    const patch = { name, nickname: str(req.body.nickname), birthdate: str(req.body.birthdate) || null };
     if (req.file) {
       const { data: existing } = await supabase.from('students').select('photo_path').eq('id', id).maybeSingle();
       const photo = await uploadImage(req.file, 'students');
@@ -428,36 +286,6 @@ router.delete('/students/:id', async (req, res) => {
     const { error } = await supabase.from('students').delete().eq('id', id);
     if (error) throw error;
     if (existing && existing.photo_path) await deleteFile(existing.photo_path);
-    res.json({ ok: true });
-  } catch (err) {
-    fail(res, err);
-  }
-});
-
-router.get('/group-photo', async (req, res) => {
-  res.json({ photo: await getGroupPhoto() });
-});
-
-router.post('/group-photo', upload.single('file'), async (req, res) => {
-  if (!dbCheck(res)) return;
-  try {
-    if (!req.file) return res.status(400).json({ error: 'Pick an image to upload.' });
-    const { url, path } = await uploadImage(req.file, 'group');
-    const old = await getGroupPhoto();
-    await saveGroupPhoto({ url, path });
-    if (old && old.path) await deleteFile(old.path);
-    res.json({ photo: { url, path } });
-  } catch (err) {
-    fail(res, err);
-  }
-});
-
-router.delete('/group-photo', async (req, res) => {
-  if (!dbCheck(res)) return;
-  try {
-    const old = await getGroupPhoto();
-    await saveGroupPhoto(null);
-    if (old && old.path) await deleteFile(old.path);
     res.json({ ok: true });
   } catch (err) {
     fail(res, err);
