@@ -1,7 +1,12 @@
 const express = require('express');
 const router = express.Router();
 const multer = require('multer');
-const { supabase } = require('../lib/supabase');
+const { requireAuthApi } = require('../lib/auth');
+const { supabase, dbReady } = require('../lib/supabase');
+const { uploadImage, uploadPdf, deleteFile } = require('../lib/storage');
+const { getSite, saveSite, getGroupPhoto, saveGroupPhoto } = require('../lib/site');
+
+router.use(requireAuthApi);
 
 const upload = multer({
   storage: multer.memoryStorage(),
@@ -51,23 +56,21 @@ const listOrder = {
   albums: { col: 'sort_order', asc: true }
 };
 
-router.get('/notes/:id/download', async (req, res) => {
+router.delete('/notes/:id', async (req, res) => {
   if (!dbCheck(res)) return;
   try {
     const { id } = req.params;
     const { data: existing } = await supabase.from('notes').select('path').eq('id', id).maybeSingle();
-    if (!existing || !existing.path) return res.status(404).json({ error: 'File not found' });
-    const { error } = await supabase.storage.from('media').download(existing.path);
+    const { error } = await supabase.from('notes').delete().eq('id', id);
     if (error) throw error;
-    res.set('Content-Type', 'application/pdf');
-    res.set('Content-Disposition', `attachment; filename="${existing.title || 'note'}.pdf"`);
-    res.send();
+    if (existing && existing.path) await deleteFile(existing.path);
+    res.json({ ok: true });
   } catch (err) {
     fail(res, err);
   }
 });
 
-router.post('/notes', uploadPdfMiddleware.single('file'), async (req, res) => {
+router.post('/albums', upload.single('file'), async (req, res) => {
   if (!dbCheck(res)) return;
   try {
     if (!req.file) return res.status(400).json({ error: 'Pick a PDF to upload.' });

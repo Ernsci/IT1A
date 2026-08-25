@@ -93,6 +93,27 @@ router.get('/notes', async (req, res) => {
   res.render('notes', { title: 'Notes', active: 'notes', notes });
 });
 
+router.get('/notes/:id/download', async (req, res) => {
+  if (!dbReady()) return res.status(503).send('Database not configured');
+  try {
+    const { id } = req.params;
+    if (!/^[0-9a-f-]{36}$/i.test(id)) return res.status(400).send('Invalid note id');
+    const { data: existing, error: dbErr } = await supabase.from('notes').select('title, path').eq('id', id).maybeSingle();
+    if (dbErr) throw dbErr;
+    if (!existing || !existing.path) return res.status(404).send('File not found');
+    const { data, error } = await supabase.storage.from('media').download(existing.path);
+    if (error) throw error;
+    const buffer = Buffer.from(await data.arrayBuffer());
+    const safeName = (existing.title || 'note').replace(/[^a-z0-9 _.-]/gi, '').trim() || 'note';
+    res.set('Content-Type', 'application/pdf');
+    res.set('Content-Length', buffer.length);
+    res.set('Content-Disposition', `inline; filename="${safeName}.pdf"`);
+    res.send(buffer);
+  } catch (err) {
+    fail(res, err);
+  }
+});
+
 router.get('/special', async (req, res) => {
   const groupPhoto = dbReady() ? await getGroupPhoto() : null;
   res.render('special', { title: 'Special', active: 'special', groupPhoto });
