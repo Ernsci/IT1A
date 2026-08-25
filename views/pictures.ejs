@@ -12,10 +12,16 @@
     <% if (photos.length) { %>
       <div class="filter-row" role="group" aria-label="Filter by album">
         <button class="chip is-active" type="button" data-filter="*">All</button>
-        <% var albums = []; photos.forEach(function (ph) { if (albums.indexOf(ph.album) === -1) albums.push(ph.album); }); %>
-        <% albums.forEach(function (a) { %>
-          <button class="chip" type="button" data-filter="<%= a %>"><%= a %></button>
-        <% }); %>
+        <%
+          var chipNames = albums.map(function (a) { return { name: a.name, desc: a.description }; });
+          var seen = chipNames.map(function (c) { return c.name; });
+          photos.forEach(function (p) {
+            if (p.album && seen.indexOf(p.album) === -1) { seen.push(p.album); chipNames.push({ name: p.album, desc: '' }); }
+          });
+        %>
+        <% chipNames.forEach(function (c) { var count = photos.filter(function (p) { return p.album === c.name; }).length; if (count > 0) { %>
+          <button class="chip" type="button" data-filter="<%= c.name %>" <%= c.desc ? 'title="' + c.desc + '"' : '' %>><%= c.name %> <span class="chip-count"><%= count %></span></button>
+        <% } }); %>
       </div>
       <div class="photo-grid" id="photo-grid">
         <% photos.forEach(function (ph, i) { %>

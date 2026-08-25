@@ -35,10 +35,17 @@ router.get('/', async (req, res) => {
 });
 
 router.get('/pictures', async (req, res) => {
-  const photos = dbReady()
-    ? (await safe(supabase.from('photos').select('*').order('created_at', { ascending: false }))).rows
-    : [];
-  res.render('pictures', { title: 'Pictures', active: 'pictures', photos });
+  let photos = [];
+  let albums = [];
+  if (dbReady()) {
+    const [p, a] = await Promise.all([
+      safe(supabase.from('photos').select('*').order('created_at', { ascending: false })),
+      safe(supabase.from('albums').select('*').order('sort_order', { ascending: true }))
+    ]);
+    photos = p.rows;
+    albums = a.rows;
+  }
+  res.render('pictures', { title: 'Pictures', active: 'pictures', photos, albums });
 });
 
 router.get('/officers', async (req, res) => {

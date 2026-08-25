@@ -82,6 +82,30 @@
     </section>
 
     <section class="adm-pane" id="pane-photos" aria-label="Pictures">
+      <form class="adm-form card" id="form-albums" data-kind="albums" enctype="multipart/form-data">
+        <h2 class="adm-form-title mono" data-mode-label>create_album</h2>
+        <input type="hidden" name="id" value="">
+        <div class="field-row">
+          <label class="field">
+            <span class="field-label mono">album name *</span>
+            <input type="text" name="name" required maxlength="60" placeholder="e.g. Sports Fest">
+          </label>
+          <label class="field field-grow">
+            <span class="field-label mono">description</span>
+            <input type="text" name="description" maxlength="140">
+          </label>
+          <label class="field">
+            <span class="field-label mono">order</span>
+            <input type="number" name="sort_order" value="0" min="0">
+          </label>
+        </div>
+        <div class="form-actions">
+          <button class="btn btn-primary" type="submit">Save Album</button>
+          <button class="btn btn-ghost" type="button" data-reset hidden>Cancel edit</button>
+        </div>
+      </form>
+      <div class="adm-list" id="list-albums" aria-live="polite"></div>
+
       <form class="adm-form card" id="form-photos" data-kind="photos" enctype="multipart/form-data">
         <h2 class="adm-form-title mono">upload_picture</h2>
         <div class="field-row">
@@ -91,7 +115,9 @@
           </label>
           <label class="field">
             <span class="field-label mono">album</span>
-            <input type="text" name="album" placeholder="General" maxlength="60">
+            <select name="album" id="photo-album">
+              <option value="General">General</option>
+            </select>
           </label>
         </div>
         <div class="field-row">

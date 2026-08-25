@@ -52,7 +52,8 @@ const listOrder = {
   photos: { col: 'created_at', asc: false },
   officers: { col: 'sort_order', asc: true },
   students: { col: 'created_at', asc: true },
-  notes: { col: 'created_at', asc: false }
+  notes: { col: 'created_at', asc: false },
+  albums: { col: 'sort_order', asc: true }
 };
 
 for (const table of Object.keys(listOrder)) {
@@ -206,6 +207,78 @@ router.delete('/notes/:id', async (req, res) => {
     const { error } = await supabase.from('notes').delete().eq('id', id);
     if (error) throw error;
     if (existing && existing.path) await deleteFile(existing.path);
+    res.json({ ok: true });
+  } catch (err) {
+    fail(res, err);
+  }
+});
+
+router.post('/albums', upload.single('file'), async (req, res) => {
+  if (!dbCheck(res)) return;
+  try {
+    const name = str(req.body.name);
+    if (!name) return res.status(400).json({ error: 'Album name is required.' });
+    const { data, error } = await supabase
+      .from('albums')
+      .insert({
+        name,
+        description: str(req.body.description),
+        sort_order: parseInt(req.body.sort_order, 10) || 0
+      })
+      .select()
+      .single();
+    if (error) {
+      if (error.code === '23505') return res.status(409).json({ error: 'An album with that name already exists.' });
+      throw error;
+    }
+    res.status(201).json({ item: data });
+  } catch (err) {
+    if (err.code === '23505') return res.status(409).json({ error: 'An album with that name already exists.' });
+    fail(res, err);
+  }
+});
+
+router.put('/albums/:id', upload.single('file'), async (req, res) => {
+  if (!dbCheck(res)) return;
+  try {
+    const { id } = req.params;
+    const name = str(req.body.name);
+    if (!name) return res.status(400).json({ error: 'Album name is required.' });
+    const { data: existing } = await supabase.from('albums').select('name').eq('id', id).maybeSingle();
+    const { data, error } = await supabase
+      .from('albums')
+      .update({
+        name,
+        description: str(req.body.description),
+        sort_order: parseInt(req.body.sort_order, 10) || 0
+      })
+      .eq('id', id)
+      .select()
+      .single();
+    if (error) {
+      if (error.code === '23505') return res.status(409).json({ error: 'An album with that name already exists.' });
+      throw error;
+    }
+    if (existing && existing.name && existing.name !== name) {
+      await supabase.from('photos').update({ album: name }).eq('album', existing.name);
+    }
+    res.json({ item: data });
+  } catch (err) {
+    if (err.code === '23505') return res.status(409).json({ error: 'An album with that name already exists.' });
+    fail(res, err);
+  }
+});
+
+router.delete('/albums/:id', async (req, res) => {
+  if (!dbCheck(res)) return;
+  try {
+    const { id } = req.params;
+    const { data: existing } = await supabase.from('albums').select('name').eq('id', id).maybeSingle();
+    const { error } = await supabase.from('albums').delete().eq('id', id);
+    if (error) throw error;
+    if (existing && existing.name) {
+      await supabase.from('photos').update({ album: 'General' }).eq('album', existing.name);
+    }
     res.json({ ok: true });
   } catch (err) {
     fail(res, err);

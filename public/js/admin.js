@@ -28,7 +28,7 @@
     return d.toLocaleDateString('en-PH', { year: 'numeric', month: 'short', day: 'numeric' });
   }
 
-  var state = { posts: [], photos: [], officers: [], students: [], notes: [] };
+  var state = { posts: [], photos: [], officers: [], students: [], notes: [], albums: [] };
 
   function api(path, options) {
     return fetch(path, options).then(function (res) {
@@ -40,9 +40,13 @@
   }
 
   function loadAll() {
-    ['posts', 'photos', 'officers', 'students', 'notes'].forEach(function (kind) {
+    ['posts', 'photos', 'officers', 'students', 'notes', 'albums'].forEach(function (kind) {
       api('/adin/api/' + kind)
-        .then(function (body) { state[kind] = body.items || []; renderList(kind); })
+        .then(function (body) {
+          state[kind] = body.items || [];
+          renderList(kind);
+          if (kind === 'albums' || kind === 'photos') fillAlbumSelect();
+        })
         .catch(function (err) { toast(err.message, false); });
     });
     api('/adin/api/settings')
@@ -115,6 +119,15 @@
       var box = el('div', 'row-main');
       box.append(el('p', 'row-title', item.name));
       if (item.nickname) box.append(el('p', 'row-meta mono', 'aka ' + item.nickname));
+      li.append(box);
+    },
+    albums: function (item, li) {
+      var box = el('div', 'row-main');
+      box.append(el('p', 'row-title', item.name));
+      var count = state.photos.filter(function (p) { return p.album === item.name; }).length;
+      var bits = ['#' + (item.sort_order || 0) + ' · ' + count + (count === 1 ? ' photo' : ' photos')];
+      if (item.description) bits.unshift(item.description);
+      box.append(el('p', 'row-meta mono', bits.join(' · ')));
       li.append(box);
     },
     notes: function (item, li) {
@@ -236,6 +249,13 @@
           toast('Deleted.');
           state[kind] = state[kind].filter(function (i) { return i.id !== id; });
           renderList(kind);
+          if (kind === 'albums') {
+            return api('/adin/api/photos').then(function (body) {
+              state.photos = body.items || [];
+              renderList('photos');
+              fillAlbumSelect();
+            });
+          }
         })
         .catch(function (err) { toast(err.message, false); });
     }
@@ -292,6 +312,22 @@
       .catch(function (err) { toast(err.message, false); })
       .finally(function () { btn.disabled = false; });
   });
+
+  /* ---------- album dropdown ---------- */
+  function fillAlbumSelect() {
+    var sel = $('#photo-album');
+    if (!sel) return;
+    var current = sel.value;
+    sel.textContent = '';
+    var names = ['General'].concat(state.albums.map(function (a) { return a.name; }));
+    names.forEach(function (n) {
+      var o = document.createElement('option');
+      o.value = n;
+      o.textContent = n;
+      sel.append(o);
+    });
+    if (names.indexOf(current) !== -1) sel.value = current;
+  }
 
   /* ---------- group photo (special page) ---------- */
   function loadGroupPhoto() {

@@ -469,6 +469,12 @@ a { color: var(--neon-soft); }
   box-shadow: 0 0 14px rgba(168, 85, 247, 0.5);
 }
 
+.chip-count {
+  opacity: 0.65;
+  font-size: 0.7rem;
+  margin-left: 0.15rem;
+}
+
 .photo-grid { columns: 3 280px; column-gap: 1.2rem; }
 
 .photo-card { break-inside: avoid; margin: 0 0 1.2rem; overflow: hidden; }
