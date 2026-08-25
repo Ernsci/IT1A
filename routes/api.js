@@ -4,7 +4,7 @@ const router = express.Router();
 const { requireAuthApi } = require('../lib/auth');
 const { supabase, dbReady } = require('../lib/supabase');
 const { uploadImage, uploadPdf, deleteFile } = require('../lib/storage');
-const { getSite, saveSite } = require('../lib/site');
+const { getSite, saveSite, getGroupPhoto, saveGroupPhoto } = require('../lib/site');
 
 router.use(requireAuthApi);
 
@@ -330,6 +330,36 @@ router.delete('/students/:id', async (req, res) => {
     const { error } = await supabase.from('students').delete().eq('id', id);
     if (error) throw error;
     if (existing && existing.photo_path) await deleteFile(existing.photo_path);
+    res.json({ ok: true });
+  } catch (err) {
+    fail(res, err);
+  }
+});
+
+router.get('/group-photo', async (req, res) => {
+  res.json({ photo: await getGroupPhoto() });
+});
+
+router.post('/group-photo', upload.single('file'), async (req, res) => {
+  if (!dbCheck(res)) return;
+  try {
+    if (!req.file) return res.status(400).json({ error: 'Pick an image to upload.' });
+    const { url, path } = await uploadImage(req.file, 'group');
+    const old = await getGroupPhoto();
+    await saveGroupPhoto({ url, path });
+    if (old && old.path) await deleteFile(old.path);
+    res.json({ photo: { url, path } });
+  } catch (err) {
+    fail(res, err);
+  }
+});
+
+router.delete('/group-photo', async (req, res) => {
+  if (!dbCheck(res)) return;
+  try {
+    const old = await getGroupPhoto();
+    await saveGroupPhoto(null);
+    if (old && old.path) await deleteFile(old.path);
     res.json({ ok: true });
   } catch (err) {
     fail(res, err);

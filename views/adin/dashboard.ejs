@@ -112,6 +112,21 @@
     </section>
 
     <section class="adm-pane" id="pane-officers" aria-label="Officers">
+      <form class="adm-form card" id="form-group">
+        <h2 class="adm-form-title mono">special_page_group_pic</h2>
+        <p class="adm-hint">Shows on <span class="mono">/special</span> — the officer group photo. Uploading a new one replaces the old.</p>
+        <div class="field-row">
+          <div class="thumb-box" data-gp-thumb hidden><img src="" alt="Current group pic"></div>
+          <label class="field field-grow">
+            <span class="field-label mono">group photo (JPG/PNG/WEBP/GIF, max 10MB)</span>
+            <input type="file" accept="image/jpeg,image/png,image/webp,image/gif">
+          </label>
+        </div>
+        <div class="form-actions">
+          <button class="btn btn-primary" type="submit">Set Group Pic</button>
+          <button class="btn btn-danger" type="button" data-gp-remove hidden>Remove</button>
+        </div>
+      </form>
       <form class="adm-form card" id="form-officers" data-kind="officers" enctype="multipart/form-data">
         <h2 class="adm-form-title mono" data-mode-label>new_officer</h2>
         <input type="hidden" name="id" value="">

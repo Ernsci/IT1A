@@ -293,5 +293,53 @@
       .finally(function () { btn.disabled = false; });
   });
 
+  /* ---------- group photo (special page) ---------- */
+  function loadGroupPhoto() {
+    api('/adin/api/group-photo')
+      .then(function (body) {
+        var photo = body.photo;
+        var thumb = $('[data-gp-thumb]');
+        var removeBtn = $('[data-gp-remove]');
+        if (photo && photo.url) {
+          thumb.hidden = false;
+          thumb.querySelector('img').src = photo.url;
+          removeBtn.hidden = false;
+        } else {
+          thumb.hidden = true;
+          removeBtn.hidden = true;
+        }
+      })
+      .catch(function () {});
+  }
+
+  $('#form-group').addEventListener('submit', function (e) {
+    e.preventDefault();
+    var input = e.target.querySelector('[type="file"]');
+    if (!input.files.length) {
+      toast('Pick an image first.', false);
+      return;
+    }
+    var fd = new FormData();
+    fd.append('file', input.files[0]);
+    var btn = e.target.querySelector('[type="submit"]');
+    btn.disabled = true;
+    api('/adin/api/group-photo', { method: 'POST', body: fd })
+      .then(function () {
+        toast('Group pic updated.');
+        e.target.reset();
+        loadGroupPhoto();
+      })
+      .catch(function (err) { toast(err.message, false); })
+      .finally(function () { btn.disabled = false; });
+  });
+
+  $('[data-gp-remove]').addEventListener('click', function () {
+    if (!confirm('Remove the group pic from /special?')) return;
+    api('/adin/api/group-photo', { method: 'DELETE' })
+      .then(function () { toast('Group pic removed.'); loadGroupPhoto(); })
+      .catch(function (err) { toast(err.message, false); });
+  });
+
+  loadGroupPhoto();
   loadAll();
 })();

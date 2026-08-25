@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const { supabase, dbReady } = require('../lib/supabase');
+const { getGroupPhoto } = require('../lib/site');
 
 async function safe(query) {
   try {
@@ -59,6 +60,11 @@ router.get('/notes', async (req, res) => {
     ? (await safe(supabase.from('notes').select('*').order('created_at', { ascending: false }))).rows
     : [];
   res.render('notes', { title: 'Notes', active: 'notes', notes });
+});
+
+router.get('/special', async (req, res) => {
+  const groupPhoto = dbReady() ? await getGroupPhoto() : null;
+  res.render('special', { title: 'Special', active: 'special', groupPhoto });
 });
 
 module.exports = router;
