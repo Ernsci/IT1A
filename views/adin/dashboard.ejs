@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Admin Console · <%= site.title %></title>
+  <link rel="icon" type="image/jpeg" href="/img/logo.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Chakra+Petch:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/admin.css">
+</head>
+<body class="admin-body">
+  <header class="adm-top">
+    <div class="adm-brand">
+      <img src="/img/logo.jpg" alt="IT1A logo" width="38" height="38">
+      <div>
+        <span class="adm-title">IT1A // CONTROL</span>
+        <small class="mono">admin_console v1.0</small>
+      </div>
+    </div>
+    <div class="adm-top-actions">
+      <% if (!dbReady) { %>
+        <span class="adm-warn mono" role="status">⚠ DB not configured — set env vars</span>
+      <% } %>
+      <a class="btn btn-ghost btn-sm" href="/" target="_blank" rel="noopener">View site ↗</a>
+      <form method="post" action="/adin/logout">
+        <button class="btn btn-danger btn-sm" type="submit">Logout</button>
+      </form>
+    </div>
+  </header>
+
+  <nav class="adm-tabs" aria-label="Admin sections">
+    <button class="adm-tab is-active" type="button" data-tab="posts">Activities</button>
+    <button class="adm-tab" type="button" data-tab="photos">Pictures</button>
+    <button class="adm-tab" type="button" data-tab="officers">Officers</button>
+    <button class="adm-tab" type="button" data-tab="students">Students</button>
+    <button class="adm-tab" type="button" data-tab="settings">Settings</button>
+  </nav>
+
+  <main class="adm-main">
+
+    <section class="adm-pane is-active" id="pane-posts" aria-label="Activities">
+      <form class="adm-form card" id="form-posts" data-kind="posts" enctype="multipart/form-data">
+        <h2 class="adm-form-title mono" data-mode-label>new_activity</h2>
+        <input type="hidden" name="id" value="">
+        <div class="field-row">
+          <label class="field field-grow">
+            <span class="field-label mono">title *</span>
+            <input type="text" name="title" required maxlength="140">
+          </label>
+          <label class="field">
+            <span class="field-label mono">category</span>
+            <select name="category">
+              <option value="activity">Activity</option>
+              <option value="dumb">Dumb Moment</option>
+            </select>
+          </label>
+          <label class="field">
+            <span class="field-label mono">date</span>
+            <input type="date" name="event_date">
+          </label>
+        </div>
+        <label class="field">
+          <span class="field-label mono">story</span>
+          <textarea name="body" rows="5" placeholder="What happened? Spill."></textarea>
+        </label>
+        <div class="field-row">
+          <label class="field field-grow">
+            <span class="field-label mono">cover image</span>
+            <input type="file" name="file" accept="image/jpeg,image/png,image/webp,image/gif">
+          </label>
+          <div class="thumb-box" data-thumb hidden><img src="" alt="Current cover"></div>
+        </div>
+        <div class="form-actions">
+          <button class="btn btn-primary" type="submit">Save Activity</button>
+          <button class="btn btn-ghost" type="button" data-reset hidden>Cancel edit</button>
+        </div>
+      </form>
+      <div class="adm-list" id="list-posts" aria-live="polite"></div>
+    </section>
+
+    <section class="adm-pane" id="pane-photos" aria-label="Pictures">
+      <form class="adm-form card" id="form-photos" data-kind="photos" enctype="multipart/form-data">
+        <h2 class="adm-form-title mono">upload_picture</h2>
+        <div class="field-row">
+          <label class="field field-grow">
+            <span class="field-label mono">image * (JPG/PNG/WEBP/GIF, max 10MB)</span>
+            <input type="file" name="file" accept="image/jpeg,image/png,image/webp,image/gif" required>
+          </label>
+          <label class="field">
+            <span class="field-label mono">album</span>
+            <input type="text" name="album" placeholder="General" maxlength="60">
+          </label>
+        </div>
+        <div class="field-row">
+          <label class="field field-grow">
+            <span class="field-label mono">title</span>
+            <input type="text" name="title" maxlength="120">
+          </label>
+          <label class="field field-grow">
+            <span class="field-label mono">caption</span>
+            <input type="text" name="caption" maxlength="200">
+          </label>
+        </div>
+        <div class="form-actions">
+          <button class="btn btn-primary" type="submit">Upload</button>
+        </div>
+      </form>
+      <div class="adm-gallery" id="list-photos" aria-live="polite"></div>
+    </section>
+
+    <section class="adm-pane" id="pane-officers" aria-label="Officers">
+      <form class="adm-form card" id="form-officers" data-kind="officers" enctype="multipart/form-data">
+        <h2 class="adm-form-title mono" data-mode-label>new_officer</h2>
+        <input type="hidden" name="id" value="">
+        <div class="field-row">
+          <label class="field field-grow">
+            <span class="field-label mono">name *</span>
+            <input type="text" name="name" required maxlength="120">
+          </label>
+          <label class="field">
+            <span class="field-label mono">position *</span>
+            <input type="text" name="position" required maxlength="80" placeholder="President">
+          </label>
+          <label class="field">
+            <span class="field-label mono">order</span>
+            <input type="number" name="sort_order" value="0" min="0">
+          </label>
+        </div>
+        <label class="field">
+          <span class="field-label mono">quote / message</span>
+          <input type="text" name="quote" maxlength="200">
+        </label>
+        <div class="field-row">
+          <label class="field field-grow">
+            <span class="field-label mono">photo</span>
+            <input type="file" name="file" accept="image/jpeg,image/png,image/webp,image/gif">
+          </label>
+          <div class="thumb-box" data-thumb hidden><img src="" alt="Current photo"></div>
+        </div>
+        <div class="form-actions">
+          <button class="btn btn-primary" type="submit">Save Officer</button>
+          <button class="btn btn-ghost" type="button" data-reset hidden>Cancel edit</button>
+        </div>
+      </form>
+      <div class="adm-list" id="list-officers" aria-live="polite"></div>
+    </section>
+
+    <section class="adm-pane" id="pane-students" aria-label="Students">
+      <form class="adm-form card" id="form-students" data-kind="students" enctype="multipart/form-data">
+        <h2 class="adm-form-title mono" data-mode-label>new_student</h2>
+        <input type="hidden" name="id" value="">
+        <div class="field-row">
+          <label class="field field-grow">
+            <span class="field-label mono">name *</span>
+            <input type="text" name="name" required maxlength="120">
+          </label>
+          <label class="field field-grow">
+            <span class="field-label mono">nickname</span>
+            <input type="text" name="nickname" maxlength="80">
+          </label>
+        </div>
+        <div class="field-row">
+          <label class="field field-grow">
+            <span class="field-label mono">photo</span>
+            <input type="file" name="file" accept="image/jpeg,image/png,image/webp,image/gif">
+          </label>
+          <div class="thumb-box" data-thumb hidden><img src="" alt="Current photo"></div>
+        </div>
+        <div class="form-actions">
+          <button class="btn btn-primary" type="submit">Save Student</button>
+          <button class="btn btn-ghost" type="button" data-reset hidden>Cancel edit</button>
+        </div>
+      </form>
+      <div class="adm-list adm-list-compact" id="list-students" aria-live="polite"></div>
+    </section>
+
+    <section class="adm-pane" id="pane-settings" aria-label="Settings">
+      <form class="adm-form card" id="form-settings">
+        <h2 class="adm-form-title mono">site_settings</h2>
+        <div class="field-row">
+          <label class="field">
+            <span class="field-label mono">site title</span>
+            <input type="text" name="title" maxlength="60">
+          </label>
+          <label class="field">
+            <span class="field-label mono">tagline</span>
+            <input type="text" name="tagline" maxlength="60">
+          </label>
+        </div>
+        <label class="field">
+          <span class="field-label mono">hero text</span>
+          <textarea name="heroText" rows="3" maxlength="400"></textarea>
+        </label>
+        <label class="field">
+          <span class="field-label mono">about text</span>
+          <textarea name="about" rows="6" maxlength="1200"></textarea>
+        </label>
+        <div class="form-actions">
+          <button class="btn btn-primary" type="submit">Save Settings</button>
+        </div>
+      </form>
+    </section>
+
+  </main>
+
+  <div class="toast mono" id="toast" role="status" aria-live="polite"></div>
+  <script src="/js/admin.js"></script>
+</body>
+</html>

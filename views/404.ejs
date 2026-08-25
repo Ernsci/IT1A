@@ -1,0 +1,15 @@
+<%- include('partials/head') %>
+<%- include('partials/nav') %>
+
+<main id="main">
+  <section class="page-head">
+    <p class="kicker mono">// error_404</p>
+    <h1>Signal Lost</h1>
+    <p class="page-sub"><%= typeof errorMessage !== 'undefined' && errorMessage ? errorMessage : 'This page drifted off the network. Even our best pings could not find it.' %></p>
+    <div class="hero-cta">
+      <a class="btn btn-primary" href="/">Return to Base</a>
+    </div>
+  </section>
+</main>
+
+<%- include('partials/footer') %>

@@ -1,0 +1,80 @@
+<%- include('partials/head') %>
+<%- include('partials/nav') %>
+
+<main id="main">
+  <section class="hero">
+    <div class="hero-inner">
+      <div class="hero-logo-wrap">
+        <img class="hero-logo" src="/img/logo.jpg" alt="IT1A section logo" width="260" height="260">
+      </div>
+      <h1 class="hero-title glitch" data-text="IT1A">IT1A</h1>
+      <p class="hero-tag mono">&lt;<%= site.tagline %>&gt;<span class="cursor" aria-hidden="true">_</span></p>
+      <p class="hero-text"><%= site.heroText %></p>
+      <div class="hero-cta">
+        <a class="btn btn-primary" href="#activities">See Activities</a>
+        <a class="btn btn-ghost" href="/pictures">View Pictures</a>
+      </div>
+      <dl class="hero-stats">
+        <div class="stat"><dt class="mono">students</dt><dd data-count="<%= stats.students %>">0</dd></div>
+        <div class="stat"><dt class="mono">officers</dt><dd data-count="<%= stats.officers %>">0</dd></div>
+        <div class="stat"><dt class="mono">memories</dt><dd data-count="<%= stats.photos %>">0</dd></div>
+      </dl>
+    </div>
+  </section>
+
+  <section class="section" id="activities">
+    <div class="section-head reveal">
+      <p class="kicker mono">// latest_transmissions</p>
+      <h2>Activities &amp; Dumb Moments</h2>
+    </div>
+
+    <% if (posts.length) { %>
+      <div class="post-grid">
+        <% posts.forEach(function (p) { %>
+          <article class="post-card card reveal">
+            <% if (p.cover_url) { %>
+              <img class="post-cover" src="<%= p.cover_url %>" alt="Cover for <%= p.title %>" loading="lazy">
+            <% } %>
+            <div class="post-body">
+              <div class="post-meta mono">
+                <span class="badge <%= p.category === 'dumb' ? 'badge-dumb' : 'badge-activity' %>">
+                  <%= p.category === 'dumb' ? 'DUMB MOMENT' : 'ACTIVITY' %>
+                </span>
+                <% if (p.event_date) { %>
+                  <time datetime="<%= p.event_date %>"><%= new Date(p.event_date).toLocaleDateString('en-PH', { year: 'numeric', month: 'short', day: 'numeric' }) %></time>
+                <% } %>
+              </div>
+              <h3 class="post-title"><%= p.title %></h3>
+              <% if (p.body) { %>
+                <p class="post-text clamp"><%= p.body %></p>
+                <button class="link-btn mono" type="button" data-expand>read_more</button>
+              <% } %>
+            </div>
+          </article>
+        <% }); %>
+      </div>
+    <% } else { %>
+      <div class="empty card reveal">
+        <p class="mono">// no_transmissions_yet</p>
+        <p>Nothing logged so far. The chaos archive is warming up…</p>
+      </div>
+    <% } %>
+  </section>
+
+  <section class="section" id="about">
+    <div class="section-head reveal">
+      <p class="kicker mono">// whoami</p>
+      <h2>About the Section</h2>
+    </div>
+    <div class="terminal card reveal">
+      <div class="terminal-bar mono" aria-hidden="true"><span></span><span></span><span></span> it1a@DORSU:~</div>
+      <div class="terminal-body mono">
+        <p><span class="prompt">$</span> whoami</p>
+        <p class="terminal-out"><%= site.about %></p>
+        <p><span class="prompt">$</span> <span class="cursor" aria-hidden="true">_</span></p>
+      </div>
+    </div>
+  </section>
+</main>
+
+<%- include('partials/footer') %>

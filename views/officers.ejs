@@ -1,0 +1,42 @@
+<%- include('partials/head') %>
+<%- include('partials/nav') %>
+
+<main id="main">
+  <section class="page-head">
+    <p class="kicker mono">// command_deck</p>
+    <h1>Officers</h1>
+    <p class="page-sub">The ones who keep IT1A running. Barely.</p>
+  </section>
+
+  <section class="section">
+    <% if (officers.length) { %>
+      <div class="officer-grid">
+        <% officers.forEach(function (o, i) { %>
+          <article class="officer-card card reveal <%= i === 0 ? 'officer-lead' : '' %>">
+            <div class="officer-photo-wrap">
+              <% if (o.photo_url) { %>
+                <img class="officer-photo" src="<%= o.photo_url %>" alt="Photo of <%= o.name %>" loading="lazy">
+              <% } else { %>
+                <div class="officer-photo officer-photo-fallback" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" width="42" height="42" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                </div>
+              <% } %>
+              <span class="officer-rank mono"><%= o.position %></span>
+            </div>
+            <div class="officer-info">
+              <h2 class="officer-name"><%= o.name %></h2>
+              <% if (o.quote) { %><p class="officer-quote">“<%= o.quote %>”</p><% } %>
+            </div>
+          </article>
+        <% }); %>
+      </div>
+    <% } else { %>
+      <div class="empty card">
+        <p class="mono">// roster_unpopulated</p>
+        <p>No officers listed yet. The bridge is empty, captain.</p>
+      </div>
+    <% } %>
+  </section>
+</main>
+
+<%- include('partials/footer') %>

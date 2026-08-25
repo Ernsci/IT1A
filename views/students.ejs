@@ -1,0 +1,42 @@
+<%- include('partials/head') %>
+<%- include('partials/nav') %>
+
+<main id="main">
+  <section class="page-head">
+    <p class="kicker mono">// roster</p>
+    <h1>Students</h1>
+    <p class="page-sub">The full IT1A lineup — <span id="student-count"><%= students.length %></span> registered units.</p>
+  </section>
+
+  <section class="section">
+    <% if (students.length) { %>
+      <div class="search-row">
+        <label class="mono" for="student-search">&gt; scan_roster:</label>
+        <input id="student-search" type="search" placeholder="Type a name or nickname…" autocomplete="off">
+      </div>
+      <ul class="student-grid" id="student-grid">
+        <% students.forEach(function (s) { %>
+          <li class="student-card card reveal" data-name="<%= (s.name + ' ' + (s.nickname || '')).toLowerCase() %>">
+            <% if (s.photo_url) { %>
+              <img class="student-photo" src="<%= s.photo_url %>" alt="Photo of <%= s.name %>" loading="lazy">
+            <% } else { %>
+              <span class="student-photo student-initial" aria-hidden="true"><%= s.name.charAt(0).toUpperCase() %></span>
+            <% } %>
+            <div class="student-info">
+              <p class="student-name"><%= s.name %></p>
+              <% if (s.nickname) { %><p class="student-nick mono">aka <%= s.nickname %></p><% } %>
+            </div>
+          </li>
+        <% }); %>
+      </ul>
+      <p class="empty hidden" id="student-none"><span class="mono">// no_match</span> — no unit found by that name.</p>
+    <% } else { %>
+      <div class="empty card">
+        <p class="mono">// roster_empty</p>
+        <p>No students registered yet.</p>
+      </div>
+    <% } %>
+  </section>
+</main>
+
+<%- include('partials/footer') %>

@@ -1,0 +1,55 @@
+<%- include('partials/head') %>
+<%- include('partials/nav') %>
+
+<main id="main">
+  <section class="page-head">
+    <p class="kicker mono">// gallery</p>
+    <h1>Pictures</h1>
+    <p class="page-sub">Proof that we actually touch grass. Occasionally.</p>
+  </section>
+
+  <section class="section">
+    <% if (photos.length) { %>
+      <div class="filter-row" role="group" aria-label="Filter by album">
+        <button class="chip is-active" type="button" data-filter="*">All</button>
+        <% var albums = []; photos.forEach(function (ph) { if (albums.indexOf(ph.album) === -1) albums.push(ph.album); }); %>
+        <% albums.forEach(function (a) { %>
+          <button class="chip" type="button" data-filter="<%= a %>"><%= a %></button>
+        <% }); %>
+      </div>
+      <div class="photo-grid" id="photo-grid">
+        <% photos.forEach(function (ph, i) { %>
+          <figure class="photo-card card reveal" data-album="<%= ph.album %>">
+            <button class="photo-btn" type="button" data-index="<%= i %>" aria-label="Open photo: <%= ph.title || 'untitled' %>">
+              <img src="<%= ph.url %>" alt="<%= ph.title || 'IT1A photo' %>" loading="lazy">
+            </button>
+            <figcaption>
+              <span class="photo-title"><%= ph.title || 'Untitled' %></span>
+              <% if (ph.caption) { %><span class="photo-caption"><%= ph.caption %></span><% } %>
+            </figcaption>
+          </figure>
+        <% }); %>
+      </div>
+    <% } else { %>
+      <div class="empty card">
+        <p class="mono">// gallery_empty</p>
+        <p>No photos yet. Admin — hit the console and upload some memories.</p>
+      </div>
+    <% } %>
+  </section>
+</main>
+
+<dialog class="lightbox" id="lightbox" aria-label="Photo viewer">
+  <button class="lightbox-close" type="button" aria-label="Close">×</button>
+  <img class="lightbox-img" src="" alt="">
+  <div class="lightbox-meta">
+    <p class="lightbox-title"></p>
+    <p class="lightbox-caption mono"></p>
+  </div>
+  <div class="lightbox-nav">
+    <button type="button" data-dir="-1" aria-label="Previous photo">←</button>
+    <button type="button" data-dir="1" aria-label="Next photo">→</button>
+  </div>
+</dialog>
+
+<%- include('partials/footer') %>
