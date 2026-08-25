@@ -282,6 +282,19 @@ img { max-width: 100%; display: block; }
   background: linear-gradient(135deg, var(--neon), var(--magenta));
 }
 
+.row-pdf {
+  width: 48px; height: 62px;
+  border-radius: 8px;
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  font-size: 0.6rem;
+  letter-spacing: 0.14em;
+  color: var(--neon-soft);
+  border: 1px solid var(--line-bright);
+  background: linear-gradient(160deg, rgba(168, 85, 247, 0.18), rgba(232, 121, 249, 0.08));
+}
+
 .row-main { flex: 1; min-width: 0; }
 .row-title { font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .row-meta { color: var(--neon-soft); font-size: 0.7rem; letter-spacing: 0.08em; margin-top: 0.1rem; }

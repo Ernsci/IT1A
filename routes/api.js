@@ -3,7 +3,7 @@ const multer = require('multer');
 const router = express.Router();
 const { requireAuthApi } = require('../lib/auth');
 const { supabase, dbReady } = require('../lib/supabase');
-const { uploadImage, deleteImage } = require('../lib/storage');
+const { uploadImage, uploadPdf, deleteFile } = require('../lib/storage');
 const { getSite, saveSite } = require('../lib/site');
 
 router.use(requireAuthApi);
@@ -16,6 +16,17 @@ const upload = multer({
       return cb(null, true);
     }
     cb(new Error('Only JPG, PNG, WEBP or GIF images are allowed.'));
+  }
+});
+
+const uploadPdfMiddleware = multer({
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 25 * 1024 * 1024 },
+  fileFilter: (req, file, cb) => {
+    if (file.mimetype === 'application/pdf') {
+      return cb(null, true);
+    }
+    cb(new Error('Only PDF files are allowed.'));
   }
 });
 
@@ -40,7 +51,8 @@ const listOrder = {
   posts: { col: 'created_at', asc: false },
   photos: { col: 'created_at', asc: false },
   officers: { col: 'sort_order', asc: true },
-  students: { col: 'created_at', asc: true }
+  students: { col: 'created_at', asc: true },
+  notes: { col: 'created_at', asc: false }
 };
 
 for (const table of Object.keys(listOrder)) {
@@ -100,7 +112,7 @@ router.put('/posts/:id', upload.single('file'), async (req, res) => {
       const cover = await uploadImage(req.file, 'posts');
       patch.cover_url = cover.url;
       patch.cover_path = cover.path;
-      if (existing && existing.cover_path) await deleteImage(existing.cover_path);
+      if (existing && existing.cover_path) await deleteFile(existing.cover_path);
     }
     const { data, error } = await supabase.from('posts').update(patch).eq('id', id).select().single();
     if (error) throw error;
@@ -117,7 +129,7 @@ router.delete('/posts/:id', async (req, res) => {
     const { data: existing } = await supabase.from('posts').select('cover_path').eq('id', id).maybeSingle();
     const { error } = await supabase.from('posts').delete().eq('id', id);
     if (error) throw error;
-    if (existing && existing.cover_path) await deleteImage(existing.cover_path);
+    if (existing && existing.cover_path) await deleteFile(existing.cover_path);
     res.json({ ok: true });
   } catch (err) {
     fail(res, err);
@@ -154,7 +166,46 @@ router.delete('/photos/:id', async (req, res) => {
     const { data: existing } = await supabase.from('photos').select('path').eq('id', id).maybeSingle();
     const { error } = await supabase.from('photos').delete().eq('id', id);
     if (error) throw error;
-    if (existing && existing.path) await deleteImage(existing.path);
+    if (existing && existing.path) await deleteFile(existing.path);
+    res.json({ ok: true });
+  } catch (err) {
+    fail(res, err);
+  }
+});
+
+router.post('/notes', uploadPdfMiddleware.single('file'), async (req, res) => {
+  if (!dbCheck(res)) return;
+  try {
+    if (!req.file) return res.status(400).json({ error: 'Pick a PDF to upload.' });
+    const title = str(req.body.title) || req.file.originalname.replace(/\.pdf$/i, '').slice(0, 120);
+    const { url, path } = await uploadPdf(req.file, 'notes');
+    const { data, error } = await supabase
+      .from('notes')
+      .insert({
+        title,
+        description: str(req.body.description),
+        subject: str(req.body.subject),
+        url,
+        path,
+        size_bytes: req.file.size
+      })
+      .select()
+      .single();
+    if (error) throw error;
+    res.status(201).json({ item: data });
+  } catch (err) {
+    fail(res, err);
+  }
+});
+
+router.delete('/notes/:id', async (req, res) => {
+  if (!dbCheck(res)) return;
+  try {
+    const { id } = req.params;
+    const { data: existing } = await supabase.from('notes').select('path').eq('id', id).maybeSingle();
+    const { error } = await supabase.from('notes').delete().eq('id', id);
+    if (error) throw error;
+    if (existing && existing.path) await deleteFile(existing.path);
     res.json({ ok: true });
   } catch (err) {
     fail(res, err);
@@ -206,7 +257,7 @@ router.put('/officers/:id', upload.single('file'), async (req, res) => {
       const photo = await uploadImage(req.file, 'officers');
       patch.photo_url = photo.url;
       patch.photo_path = photo.path;
-      if (existing && existing.photo_path) await deleteImage(existing.photo_path);
+      if (existing && existing.photo_path) await deleteFile(existing.photo_path);
     }
     const { data, error } = await supabase.from('officers').update(patch).eq('id', id).select().single();
     if (error) throw error;
@@ -223,7 +274,7 @@ router.delete('/officers/:id', async (req, res) => {
     const { data: existing } = await supabase.from('officers').select('photo_path').eq('id', id).maybeSingle();
     const { error } = await supabase.from('officers').delete().eq('id', id);
     if (error) throw error;
-    if (existing && existing.photo_path) await deleteImage(existing.photo_path);
+    if (existing && existing.photo_path) await deleteFile(existing.photo_path);
     res.json({ ok: true });
   } catch (err) {
     fail(res, err);
@@ -261,7 +312,7 @@ router.put('/students/:id', upload.single('file'), async (req, res) => {
       const photo = await uploadImage(req.file, 'students');
       patch.photo_url = photo.url;
       patch.photo_path = photo.path;
-      if (existing && existing.photo_path) await deleteImage(existing.photo_path);
+      if (existing && existing.photo_path) await deleteFile(existing.photo_path);
     }
     const { data, error } = await supabase.from('students').update(patch).eq('id', id).select().single();
     if (error) throw error;
@@ -278,7 +329,7 @@ router.delete('/students/:id', async (req, res) => {
     const { data: existing } = await supabase.from('students').select('photo_path').eq('id', id).maybeSingle();
     const { error } = await supabase.from('students').delete().eq('id', id);
     if (error) throw error;
-    if (existing && existing.photo_path) await deleteImage(existing.photo_path);
+    if (existing && existing.photo_path) await deleteFile(existing.photo_path);
     res.json({ ok: true });
   } catch (err) {
     fail(res, err);

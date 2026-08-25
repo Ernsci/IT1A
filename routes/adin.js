@@ -25,20 +25,22 @@ router.post('/logout', (req, res) => {
 });
 
 router.get('/dashboard', requireAuth, async (req, res) => {
-  let data = { posts: [], photos: [], officers: [], students: [] };
+  let data = { posts: [], photos: [], officers: [], students: [], notes: [] };
   if (dbReady()) {
     try {
-      const [posts, photos, officers, students] = await Promise.all([
+      const [posts, photos, officers, students, notes] = await Promise.all([
         supabase.from('posts').select('*').order('created_at', { ascending: false }),
         supabase.from('photos').select('*').order('created_at', { ascending: false }),
         supabase.from('officers').select('*').order('sort_order', { ascending: true }),
-        supabase.from('students').select('*').order('created_at', { ascending: true })
+        supabase.from('students').select('*').order('created_at', { ascending: true }),
+        supabase.from('notes').select('*').order('created_at', { ascending: false })
       ]);
       data = {
         posts: posts.data || [],
         photos: photos.data || [],
         officers: officers.data || [],
-        students: students.data || []
+        students: students.data || [],
+        notes: notes.data || []
       };
     } catch (err) {
       console.error('dashboard load failed:', err.message);

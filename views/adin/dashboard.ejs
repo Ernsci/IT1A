@@ -35,6 +35,7 @@
     <button class="adm-tab" type="button" data-tab="photos">Pictures</button>
     <button class="adm-tab" type="button" data-tab="officers">Officers</button>
     <button class="adm-tab" type="button" data-tab="students">Students</button>
+    <button class="adm-tab" type="button" data-tab="notes">Notes</button>
     <button class="adm-tab" type="button" data-tab="settings">Settings</button>
   </nav>
 
@@ -174,6 +175,36 @@
         </div>
       </form>
       <div class="adm-list adm-list-compact" id="list-students" aria-live="polite"></div>
+    </section>
+
+    <section class="adm-pane" id="pane-notes" aria-label="Notes">
+      <form class="adm-form card" id="form-notes" data-kind="notes" enctype="multipart/form-data">
+        <h2 class="adm-form-title mono">upload_note_pdf</h2>
+        <div class="field-row">
+          <label class="field field-grow">
+            <span class="field-label mono">pdf * (max 25MB — fake extensions are rejected)</span>
+            <input type="file" name="file" accept="application/pdf,.pdf" required>
+          </label>
+          <label class="field">
+            <span class="field-label mono">subject</span>
+            <input type="text" name="subject" placeholder="e.g. Web Systems" maxlength="60">
+          </label>
+        </div>
+        <div class="field-row">
+          <label class="field field-grow">
+            <span class="field-label mono">title</span>
+            <input type="text" name="title" maxlength="120" placeholder="Defaults to filename">
+          </label>
+          <label class="field field-grow">
+            <span class="field-label mono">description</span>
+            <input type="text" name="description" maxlength="200">
+          </label>
+        </div>
+        <div class="form-actions">
+          <button class="btn btn-primary" type="submit">Upload PDF</button>
+        </div>
+      </form>
+      <div class="adm-list" id="list-notes" aria-live="polite"></div>
     </section>
 
     <section class="adm-pane" id="pane-settings" aria-label="Settings">

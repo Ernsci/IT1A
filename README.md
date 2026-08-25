@@ -12,14 +12,15 @@ Purple cyber-tech theme. Node.js + Express backend. Supabase database & image st
 | `/pictures` | Photo gallery with albums + lightbox |
 | `/officers` | Officer cards |
 | `/students` | Searchable student roster |
+| `/notes` | PDF notes library (reviewers, references) |
 | `/adin` | Admin access terminal (password) |
 | `/adin/dashboard` | Admin console — manage everything |
 
 ## 1. Supabase setup (one-time)
 
 1. Open your Supabase project → **SQL Editor**
-2. Paste the entire contents of [`schema.sql`](schema.sql) → **Run**
-   - Creates tables: `settings`, `officers`, `students`, `photos`, `posts`
+2. Paste the entire contents of [`schema.sql`](schema.sql) → **Run** (safe to re-run anytime — it's idempotent)
+   - Creates tables: `settings`, `officers`, `students`, `photos`, `posts`, `notes`
    - Creates the public `media` storage bucket
    - Seeds default site settings
 3. Go to **Project Settings → API** and copy:
@@ -65,7 +66,17 @@ A [`render.yaml`](render.yaml) blueprint is included if you prefer **New → Blu
 - **Pictures** — upload photos into albums, delete anytime
 - **Officers** — add/edit officers with photos, quotes, ordering
 - **Students** — roster with photos and nicknames
+- **Notes** — upload PDF reviewers (validated by real PDF signature, not just extension)
 - **Settings** — site title, tagline, hero text, about section
+
+## Security
+
+- Admin console locked behind session auth + login rate limiting (10 tries / 15 min)
+- Uploads validated server-side: images by MIME allowlist, PDFs by `%PDF-` magic-byte signature (fake `.pdf` renames are rejected)
+- Size caps: 10MB images, 25MB PDFs
+- Files stored under randomized names — no user-controlled paths
+- All rendered content is HTML-escaped; Supabase service key never leaves the server
+- Database tables are RLS-locked (service-role only)
 
 ## Stack
 

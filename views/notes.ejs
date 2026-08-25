@@ -1,0 +1,48 @@
+<%- include('partials/head') %>
+<%- include('partials/nav') %>
+
+<main id="main">
+  <section class="page-head">
+    <p class="kicker mono">// knowledge_base</p>
+    <h1>Notes</h1>
+    <p class="page-sub">Study material, reviewers, and references — uploaded by your officers. PDF only.</p>
+  </section>
+
+  <section class="section">
+    <% if (notes.length) { %>
+      <div class="notes-toolbar">
+        <label class="mono" for="notes-search">&gt; search_notes:</label>
+        <input id="notes-search" type="search" placeholder="Filter by title, subject…" autocomplete="off">
+        <span class="notes-count mono"><%= notes.length %> file<%= notes.length === 1 ? '' : 's' %></span>
+      </div>
+      <ul class="notes-list" id="notes-list">
+        <% notes.forEach(function (n) { %>
+          <li class="note-card card reveal" data-name="<%= ((n.title || '') + ' ' + (n.subject || '') + ' ' + (n.description || '')).toLowerCase() %>">
+            <div class="note-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M9 15h6"/><path d="M9 11h1.5"/><path d="M12.5 11H15"/></svg>
+              <span class="note-ext mono">PDF</span>
+            </div>
+            <div class="note-info">
+              <p class="note-title"><%= n.title %></p>
+              <% if (n.description) { %><p class="note-desc"><%= n.description %></p><% } %>
+              <p class="note-meta mono">
+                <% if (n.subject) { %><span class="badge badge-activity"><%= n.subject %></span><% } %>
+                <span><%= (n.size_bytes ? (n.size_bytes / (1024 * 1024)).toFixed(2) : '0.00') %> MB</span> ·
+                <span><%= new Date(n.created_at).toLocaleDateString('en-PH', { year: 'numeric', month: 'short', day: 'numeric' }) %></span>
+              </p>
+            </div>
+            <a class="btn btn-primary btn-sm note-open" href="<%= n.url %>" target="_blank" rel="noopener">Open PDF ↗</a>
+          </li>
+        <% }); %>
+      </ul>
+      <p class="empty hidden" id="notes-none"><span class="mono">// no_match</span> — nothing found for that filter.</p>
+    <% } else { %>
+      <div class="empty card">
+        <p class="mono">// notes_empty</p>
+        <p>No notes uploaded yet. Officers — drop reviewers into the console.</p>
+      </div>
+    <% } %>
+  </section>
+</main>
+
+<%- include('partials/footer') %>

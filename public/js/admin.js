@@ -28,7 +28,7 @@
     return d.toLocaleDateString('en-PH', { year: 'numeric', month: 'short', day: 'numeric' });
   }
 
-  var state = { posts: [], photos: [], officers: [], students: [] };
+  var state = { posts: [], photos: [], officers: [], students: [], notes: [] };
 
   function api(path, options) {
     return fetch(path, options).then(function (res) {
@@ -40,7 +40,7 @@
   }
 
   function loadAll() {
-    ['posts', 'photos', 'officers', 'students'].forEach(function (kind) {
+    ['posts', 'photos', 'officers', 'students', 'notes'].forEach(function (kind) {
       api('/adin/api/' + kind)
         .then(function (body) { state[kind] = body.items || []; renderList(kind); })
         .catch(function (err) { toast(err.message, false); });
@@ -116,6 +116,31 @@
       box.append(el('p', 'row-title', item.name));
       if (item.nickname) box.append(el('p', 'row-meta mono', 'aka ' + item.nickname));
       li.append(box);
+    },
+    notes: function (item, li) {
+      li.append(el('div', 'row-pdf mono', 'PDF'));
+      var box = el('div', 'row-main');
+      box.append(el('p', 'row-title', item.title));
+      var bits = [];
+      if (item.subject) bits.push(item.subject);
+      bits.push(item.size_bytes ? (item.size_bytes / 1048576).toFixed(2) + ' MB' : '? MB');
+      box.append(el('p', 'row-meta mono', bits.join(' · ')));
+      if (item.description) box.append(el('p', 'row-sub', item.description));
+      li.append(box);
+      var actions = el('div', 'row-actions');
+      var open = el('a', 'btn btn-ghost btn-sm', 'Open');
+      open.href = item.url;
+      open.target = '_blank';
+      open.rel = 'noopener';
+      actions.append(open);
+      var del = el('button', 'btn btn-danger btn-sm', 'Delete');
+      del.type = 'button';
+      del.dataset.act = 'del';
+      del.dataset.id = item.id;
+      del.dataset.kind = 'notes';
+      actions.append(del);
+      li.append(actions);
+      return true;
     }
   };
 
@@ -192,7 +217,7 @@
     var resetBtn = form.querySelector('[data-reset]');
     if (resetBtn) resetBtn.hidden = true;
     var file = form.querySelector('[type="file"]');
-    if (file) file.required = kindOf(form) === 'photos';
+    if (file) file.required = kindOf(form) === 'photos' || kindOf(form) === 'notes';
   }
 
   function kindOf(form) { return form.dataset.kind; }

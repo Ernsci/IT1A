@@ -634,6 +634,71 @@ a { color: var(--neon-soft); }
 
 #student-none { color: var(--muted); padding: 1.5rem; text-align: center; }
 
+/* ---------- notes ---------- */
+
+.notes-toolbar { display: flex; align-items: center; gap: 0.8rem; margin-bottom: 1.6rem; flex-wrap: wrap; }
+.notes-toolbar label { color: var(--magenta); font-size: 0.85rem; }
+
+#notes-search {
+  flex: 1;
+  min-width: 220px;
+  max-width: 420px;
+  background: rgba(168, 85, 247, 0.06);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  color: var(--text);
+  font-family: var(--font-body);
+  font-size: 0.95rem;
+  padding: 0.65rem 1rem;
+}
+#notes-search::placeholder { color: rgba(182, 163, 214, 0.5); }
+#notes-search:focus { outline: none; border-color: var(--line-bright); box-shadow: var(--shadow-neon); }
+
+.notes-count { color: var(--muted); font-size: 0.75rem; }
+
+.notes-list { list-style: none; display: flex; flex-direction: column; gap: 1rem; max-width: 860px; }
+
+.note-card { display: flex; align-items: center; gap: 1.2rem; padding: 1.1rem 1.3rem; }
+
+.note-icon {
+  position: relative;
+  width: 62px;
+  height: 74px;
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  color: var(--neon-soft);
+  background: linear-gradient(160deg, rgba(168, 85, 247, 0.18), rgba(232, 121, 249, 0.08));
+  border: 1px solid var(--line-bright);
+  border-radius: 10px;
+  box-shadow: 0 0 14px rgba(168, 85, 247, 0.25);
+}
+
+.note-ext {
+  position: absolute;
+  bottom: 6px;
+  font-size: 0.52rem;
+  letter-spacing: 0.18em;
+  color: var(--magenta);
+}
+
+.note-info { flex: 1; min-width: 0; }
+
+.note-title { font-weight: 600; font-size: 1.02rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+.note-desc { color: var(--muted); font-size: 0.86rem; margin-top: 0.15rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+.note-meta { color: var(--muted); font-size: 0.72rem; margin-top: 0.4rem; display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap; }
+
+.note-open { flex-shrink: 0; }
+
+#notes-none { color: var(--muted); padding: 1.5rem; text-align: center; }
+
+@media (max-width: 560px) {
+  .note-card { flex-wrap: wrap; }
+  .note-open { width: 100%; }
+}
+
 /* ---------- reveal ---------- */
 
 .reveal { opacity: 0; transform: translateY(22px); transition: opacity 0.6s ease, transform 0.6s ease; }

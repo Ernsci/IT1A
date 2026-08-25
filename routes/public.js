@@ -54,4 +54,11 @@ router.get('/students', async (req, res) => {
   res.render('students', { title: 'Students', active: 'students', students });
 });
 
+router.get('/notes', async (req, res) => {
+  const notes = dbReady()
+    ? (await safe(supabase.from('notes').select('*').order('created_at', { ascending: false }))).rows
+    : [];
+  res.render('notes', { title: 'Notes', active: 'notes', notes });
+});
+
 module.exports = router;

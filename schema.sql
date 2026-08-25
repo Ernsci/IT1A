@@ -45,11 +45,23 @@ create table if not exists posts (
   created_at timestamptz not null default now()
 );
 
+create table if not exists notes (
+  id uuid primary key default gen_random_uuid(),
+  title text not null,
+  description text default '',
+  subject text default '',
+  url text not null,
+  path text not null,
+  size_bytes bigint not null default 0,
+  created_at timestamptz not null default now()
+);
+
 alter table settings enable row level security;
 alter table officers  enable row level security;
 alter table students  enable row level security;
 alter table photos    enable row level security;
 alter table posts     enable row level security;
+alter table notes     enable row level security;
 
 insert into storage.buckets (id, name, public)
 values ('media', 'media', true)
