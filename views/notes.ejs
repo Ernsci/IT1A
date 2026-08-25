@@ -31,7 +31,7 @@
                 <span><%= new Date(n.created_at).toLocaleDateString('en-PH', { year: 'numeric', month: 'short', day: 'numeric' }) %></span>
               </p>
             </div>
-            <a class="btn btn-primary btn-sm note-open" href="/adin/api/notes/<%= id %>/download" target="_blank" rel="noopener">Open PDF ↗</a>
+            <a class="btn btn-primary btn-sm note-open" href="/adin/api/notes/<%= n.id %>/download" target="_blank" rel="noopener">Open PDF ↗</a>
           </li>
         <% }); %>
       </ul>
