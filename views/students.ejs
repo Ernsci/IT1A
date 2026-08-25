@@ -25,6 +25,10 @@
             <div class="student-info">
               <p class="student-name"><%= s.name %></p>
               <% if (s.nickname) { %><p class="student-nick mono">aka <%= s.nickname %></p><% } %>
+              <% if (s.bday) { %>
+                <p class="student-bday mono"><%= s.bday.date %><% if (!s.bday.isBirthday) { %> · <%= s.bday.age %> yrs<% } %></p>
+                <% if (s.bday.isBirthday) { %><span class="badge badge-dumb bday-badge">BIRTHDAY TODAY!</span><% } %>
+              <% } %>
             </div>
           </li>
         <% }); %>

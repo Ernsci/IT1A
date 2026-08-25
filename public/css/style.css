@@ -637,6 +637,16 @@ a { color: var(--neon-soft); }
 .student-info { min-width: 0; }
 .student-name { font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .student-nick { color: var(--muted); font-size: 0.72rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.student-bday { color: var(--muted); font-size: 0.7rem; margin-top: 0.1rem; }
+
+.bday-badge { margin-top: 0.35rem; display: inline-block; animation: bday-glow 1.6s ease-in-out infinite; }
+
+@keyframes bday-glow {
+  0%, 100% { box-shadow: 0 0 6px rgba(232, 121, 249, 0.4); }
+  50% { box-shadow: 0 0 18px rgba(232, 121, 249, 0.85); }
+}
+
+.officer-bday { color: var(--muted); font-size: 0.78rem; margin-top: 0.45rem; letter-spacing: 0.04em; }
 
 #student-none { color: var(--muted); padding: 1.5rem; text-align: center; }
 

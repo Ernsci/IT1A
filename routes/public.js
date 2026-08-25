@@ -3,6 +3,23 @@ const router = express.Router();
 const { supabase, dbReady } = require('../lib/supabase');
 const { getGroupPhoto } = require('../lib/site');
 
+function birthdayInfo(bd) {
+  if (!bd) return null;
+  const d = new Date(bd + 'T00:00:00');
+  if (isNaN(d.getTime())) return null;
+  const now = new Date();
+  let age = now.getFullYear() - d.getFullYear();
+  const hadBirthday =
+    now.getMonth() > d.getMonth() ||
+    (now.getMonth() === d.getMonth() && now.getDate() >= d.getDate());
+  if (!hadBirthday) age -= 1;
+  return {
+    date: d.toLocaleDateString('en-PH', { year: 'numeric', month: 'long', day: 'numeric' }),
+    age: Math.max(age, 0),
+    isBirthday: now.getMonth() === d.getMonth() && now.getDate() === d.getDate()
+  };
+}
+
 async function safe(query) {
   try {
     const { data, count, error } = await query;
@@ -49,16 +66,22 @@ router.get('/pictures', async (req, res) => {
 });
 
 router.get('/officers', async (req, res) => {
-  const officers = dbReady()
+  let officers = dbReady()
     ? (await safe(supabase.from('officers').select('*').order('sort_order', { ascending: true }))).rows
     : [];
+  officers = officers.map(function (o) {
+    return { ...o, bday: birthdayInfo(o.birthdate) };
+  });
   res.render('officers', { title: 'Officers', active: 'officers', officers });
 });
 
 router.get('/students', async (req, res) => {
-  const students = dbReady()
+  let students = dbReady()
     ? (await safe(supabase.from('students').select('*').order('created_at', { ascending: true }))).rows
     : [];
+  students = students.map(function (s) {
+    return { ...s, bday: birthdayInfo(s.birthdate) };
+  });
   res.render('students', { title: 'Students', active: 'students', students });
 });
 

@@ -1,0 +1,13 @@
+New Feature in adin panel, Improve the /students that it has picture 1x1 and then at the right side of the 1x1 picture it has info Name, Birth and motto
+
+
+like this
+
+
+
+PICTURE      Name:
+             Birth:
+             Motto:
+
+
+make it organize like I can click the name then it will show it, add animatin

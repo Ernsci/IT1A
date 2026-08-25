@@ -12,6 +12,7 @@ create table if not exists officers (
   photo_url text default '',
   photo_path text default '',
   sort_order int not null default 0,
+  birthdate date,
   created_at timestamptz not null default now()
 );
 
@@ -21,6 +22,7 @@ create table if not exists students (
   nickname text default '',
   photo_url text default '',
   photo_path text default '',
+  birthdate date,
   created_at timestamptz not null default now()
 );
 
@@ -63,6 +65,9 @@ create table if not exists notes (
   size_bytes bigint not null default 0,
   created_at timestamptz not null default now()
 );
+
+alter table officers  add column if not exists birthdate date;
+alter table students  add column if not exists birthdate date;
 
 alter table settings enable row level security;
 alter table officers  enable row level security;

@@ -26,6 +26,12 @@
             <div class="officer-info">
               <h2 class="officer-name"><%= o.name %></h2>
               <% if (o.quote) { %><p class="officer-quote">“<%= o.quote %>”</p><% } %>
+              <% if (o.bday) { %>
+                <p class="officer-bday mono">
+                  <%= o.bday.date %><% if (!o.bday.isBirthday) { %> · <%= o.bday.age %> yrs<% } %>
+                </p>
+                <% if (o.bday.isBirthday) { %><span class="badge badge-dumb bday-badge">BIRTHDAY TODAY!</span><% } %>
+              <% } %>
             </div>
           </article>
         <% }); %>

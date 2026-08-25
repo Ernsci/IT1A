@@ -301,7 +301,8 @@ router.post('/officers', upload.single('file'), async (req, res) => {
         quote: str(req.body.quote),
         photo_url: photo.url,
         photo_path: photo.path,
-        sort_order: parseInt(req.body.sort_order, 10) || 0
+        sort_order: parseInt(req.body.sort_order, 10) || 0,
+        birthdate: str(req.body.birthdate) || null
       })
       .select()
       .single();
@@ -323,7 +324,8 @@ router.put('/officers/:id', upload.single('file'), async (req, res) => {
       name,
       position,
       quote: str(req.body.quote),
-      sort_order: parseInt(req.body.sort_order, 10) || 0
+      sort_order: parseInt(req.body.sort_order, 10) || 0,
+      birthdate: str(req.body.birthdate) || null
     };
     if (req.file) {
       const { data: existing } = await supabase.from('officers').select('photo_path').eq('id', id).maybeSingle();
@@ -363,7 +365,13 @@ router.post('/students', upload.single('file'), async (req, res) => {
     if (req.file) photo = await uploadImage(req.file, 'students');
     const { data, error } = await supabase
       .from('students')
-      .insert({ name, nickname: str(req.body.nickname), photo_url: photo.url, photo_path: photo.path })
+      .insert({
+        name,
+        nickname: str(req.body.nickname),
+        photo_url: photo.url,
+        photo_path: photo.path,
+        birthdate: str(req.body.birthdate) || null
+      })
       .select()
       .single();
     if (error) throw error;
@@ -379,7 +387,7 @@ router.put('/students/:id', upload.single('file'), async (req, res) => {
     const { id } = req.params;
     const name = str(req.body.name);
     if (!name) return res.status(400).json({ error: 'Name is required.' });
-    const patch = { name, nickname: str(req.body.nickname) };
+    const patch = { name, nickname: str(req.body.nickname), birthdate: str(req.body.birthdate) || null };
     if (req.file) {
       const { data: existing } = await supabase.from('students').select('photo_path').eq('id', id).maybeSingle();
       const photo = await uploadImage(req.file, 'students');

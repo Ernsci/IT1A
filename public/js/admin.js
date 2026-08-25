@@ -103,7 +103,9 @@
       li.querySelector('.row-thumb').hidden = !item.photo_url;
       var box = el('div', 'row-main');
       box.append(el('p', 'row-title', item.name));
-      box.append(el('p', 'row-meta mono', '#' + (item.sort_order || 0) + ' · ' + item.position));
+      var bits = ['#' + (item.sort_order || 0) + ' · ' + item.position];
+      if (item.birthdate) bits.push('b. ' + item.birthdate);
+      box.append(el('p', 'row-meta mono', bits.join(' · ')));
       if (item.quote) box.append(el('p', 'row-sub', item.quote));
       li.append(box);
     },
@@ -118,7 +120,10 @@
       }
       var box = el('div', 'row-main');
       box.append(el('p', 'row-title', item.name));
-      if (item.nickname) box.append(el('p', 'row-meta mono', 'aka ' + item.nickname));
+      var bits = [];
+      if (item.nickname) bits.push('aka ' + item.nickname);
+      if (item.birthdate) bits.push('b. ' + item.birthdate);
+      if (bits.length) box.append(el('p', 'row-meta mono', bits.join(' · ')));
       li.append(box);
     },
     albums: function (item, li) {
@@ -265,7 +270,7 @@
       if (!item) return;
       var form = $('#form-' + kind);
       form.querySelector('[name="id"]').value = item.id;
-      ['title', 'category', 'event_date', 'body', 'name', 'position', 'quote', 'sort_order', 'nickname'].forEach(function (f) {
+      ['title', 'category', 'event_date', 'body', 'name', 'position', 'quote', 'sort_order', 'nickname', 'birthdate'].forEach(function (f) {
         var input = form.querySelector('[name="' + f + '"]');
         if (input && item[f] !== undefined && item[f] !== null) input.value = item[f];
       });
