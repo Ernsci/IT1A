@@ -20,6 +20,7 @@ create table if not exists students (
   id uuid primary key default gen_random_uuid(),
   name text not null,
   nickname text default '',
+  motto text default '',
   photo_url text default '',
   photo_path text default '',
   birthdate date,
@@ -68,6 +69,7 @@ create table if not exists notes (
 
 alter table officers  add column if not exists birthdate date;
 alter table students  add column if not exists birthdate date;
+alter table students  add column if not exists motto text default '';
 
 alter table settings enable row level security;
 alter table officers  enable row level security;

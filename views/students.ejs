@@ -25,6 +25,7 @@
             <div class="student-info">
               <p class="student-name"><%= s.name %></p>
               <% if (s.nickname) { %><p class="student-nick mono">aka <%= s.nickname %></p><% } %>
+              <% if (s.motto) { %><p class="student-motto">“<%= s.motto %>”</p><% } %>
               <% if (s.bday) { %>
                 <div class="student-bday-row">
                   <span class="bday-chip mono" title="Birthdate">

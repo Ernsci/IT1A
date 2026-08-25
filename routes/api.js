@@ -368,6 +368,7 @@ router.post('/students', upload.single('file'), async (req, res) => {
       .insert({
         name,
         nickname: str(req.body.nickname),
+        motto: str(req.body.motto),
         photo_url: photo.url,
         photo_path: photo.path,
         birthdate: str(req.body.birthdate) || null
@@ -387,7 +388,7 @@ router.put('/students/:id', upload.single('file'), async (req, res) => {
     const { id } = req.params;
     const name = str(req.body.name);
     if (!name) return res.status(400).json({ error: 'Name is required.' });
-    const patch = { name, nickname: str(req.body.nickname), birthdate: str(req.body.birthdate) || null };
+    const patch = { name, nickname: str(req.body.nickname), motto: str(req.body.motto), birthdate: str(req.body.birthdate) || null };
     if (req.file) {
       const { data: existing } = await supabase.from('students').select('photo_path').eq('id', id).maybeSingle();
       const photo = await uploadImage(req.file, 'students');

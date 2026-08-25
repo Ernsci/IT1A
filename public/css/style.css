@@ -637,6 +637,7 @@ a { color: var(--neon-soft); }
 .student-info { min-width: 0; }
 .student-name { font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .student-nick { color: var(--muted); font-size: 0.72rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.student-motto { color: var(--neon-soft); font-size: 0.78rem; font-style: italic; margin-top: 0.15rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
 .bday-chip {
   display: inline-flex;
