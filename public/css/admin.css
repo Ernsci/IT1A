@@ -157,7 +157,18 @@ img { max-width: 100%; display: block; }
   box-shadow: var(--shadow-neon);
 }
 .field input[type="date"] { color-scheme: dark; }
-.field input[type="file"] { color: var(--muted); font-size: 0.85rem; }
+.field input[type="file"] {
+  color: var(--muted);
+  font-size: 0.85rem;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 0.45rem 0.7rem;
+  width: 100%;
+}
+.field input[type="file"].input-error {
+  border-color: var(--danger);
+  box-shadow: 0 0 12px rgba(251, 113, 133, 0.3);
+}
 .field input[type="file"]::file-selector-button {
   background: rgba(168, 85, 247, 0.15);
   border: 1px solid var(--line-bright);

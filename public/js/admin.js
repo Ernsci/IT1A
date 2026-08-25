@@ -196,11 +196,30 @@
   }
 
   /* ---------- form submit (create / update) ---------- */
+  var FILE_REQUIRED_MSG = {
+    photos: 'Picture required.',
+    notes: 'PDF required.',
+    officers: 'Picture required.',
+    students: 'Picture required.'
+  };
+
+  $$('.adm-form [type="file"]').forEach(function (f) {
+    f.addEventListener('change', function () { f.classList.remove('input-error'); });
+  });
+
   $$('.adm-form[data-kind]').forEach(function (form) {
     form.addEventListener('submit', function (e) {
       e.preventDefault();
       var kind = form.dataset.kind;
-      var id = (form.querySelector('[name="id"]') || {}).value || '';
+      var idInput = form.querySelector('[name="id"]');
+      var id = (idInput || {}).value || '';
+      var fileInput = form.querySelector('[type="file"]');
+      if (!id && FILE_REQUIRED_MSG[kind] && fileInput && !fileInput.files.length) {
+        toast(FILE_REQUIRED_MSG[kind], false);
+        fileInput.classList.add('input-error');
+        fileInput.focus();
+        return;
+      }
       var fd = new FormData(form);
       var url = id ? '/adin/api/' + kind + '/' + id : '/adin/api/' + kind;
       if (id) fd.delete('id');
@@ -235,7 +254,10 @@
     var resetBtn = form.querySelector('[data-reset]');
     if (resetBtn) resetBtn.hidden = true;
     var file = form.querySelector('[type="file"]');
-    if (file) file.required = kindOf(form) === 'photos' || kindOf(form) === 'notes';
+    if (file) {
+      file.required = false;
+      file.classList.remove('input-error');
+    }
   }
 
   function kindOf(form) { return form.dataset.kind; }
@@ -283,7 +305,10 @@
         if (src) thumb.querySelector('img').src = src;
       }
       var file = form.querySelector('[type="file"]');
-      if (file) file.required = false;
+      if (file) {
+        file.required = false;
+        file.classList.remove('input-error');
+      }
       form.querySelector('[data-reset]').hidden = false;
       form.scrollIntoView({ behavior: 'smooth', block: 'center' });
       form.querySelector('[name="title"], [name="name"]').focus();

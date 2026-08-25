@@ -291,8 +291,8 @@ router.post('/officers', upload.single('file'), async (req, res) => {
     const name = str(req.body.name);
     const position = str(req.body.position);
     if (!name || !position) return res.status(400).json({ error: 'Name and position are required.' });
-    let photo = { url: str(req.body.photo_url), path: str(req.body.photo_path) };
-    if (req.file) photo = await uploadImage(req.file, 'officers');
+    if (!req.file) return res.status(400).json({ error: 'Picture is required.' });
+    const photo = await uploadImage(req.file, 'officers');
     const { data, error } = await supabase
       .from('officers')
       .insert({
@@ -361,8 +361,8 @@ router.post('/students', upload.single('file'), async (req, res) => {
   try {
     const name = str(req.body.name);
     if (!name) return res.status(400).json({ error: 'Name is required.' });
-    let photo = { url: str(req.body.photo_url), path: str(req.body.photo_path) };
-    if (req.file) photo = await uploadImage(req.file, 'students');
+    if (!req.file) return res.status(400).json({ error: 'Picture is required.' });
+    const photo = await uploadImage(req.file, 'students');
     const { data, error } = await supabase
       .from('students')
       .insert({
