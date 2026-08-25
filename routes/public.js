@@ -15,6 +15,7 @@ function birthdayInfo(bd) {
   if (!hadBirthday) age -= 1;
   return {
     date: d.toLocaleDateString('en-PH', { year: 'numeric', month: 'long', day: 'numeric' }),
+    short: d.toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: 'numeric' }),
     age: Math.max(age, 0),
     isBirthday: now.getMonth() === d.getMonth() && now.getDate() === d.getDate()
   };
