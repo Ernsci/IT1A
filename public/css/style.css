@@ -637,16 +637,47 @@ a { color: var(--neon-soft); }
 .student-info { min-width: 0; }
 .student-name { font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .student-nick { color: var(--muted); font-size: 0.72rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.student-bday { color: var(--muted); font-size: 0.7rem; margin-top: 0.1rem; }
 
-.bday-badge { margin-top: 0.35rem; display: inline-block; animation: bday-glow 1.6s ease-in-out infinite; }
+.bday-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.28rem 0.75rem;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: rgba(168, 85, 247, 0.07);
+  color: var(--muted);
+  font-size: 0.68rem;
+  letter-spacing: 0.05em;
+  line-height: 1.4;
+  white-space: nowrap;
+}
+.bday-chip svg { color: var(--neon-soft); flex-shrink: 0; }
+.bday-age {
+  padding-left: 0.4rem;
+  margin-left: 0.1rem;
+  border-left: 1px solid var(--line);
+  color: var(--neon-soft);
+}
+
+.student-bday-row { display: flex; align-items: center; gap: 0.4rem; margin-top: 0.4rem; flex-wrap: wrap; }
+
+.bday-badge { animation: bday-glow 1.6s ease-in-out infinite; }
 
 @keyframes bday-glow {
   0%, 100% { box-shadow: 0 0 6px rgba(232, 121, 249, 0.4); }
   50% { box-shadow: 0 0 18px rgba(232, 121, 249, 0.85); }
 }
 
-.officer-bday { color: var(--muted); font-size: 0.78rem; margin-top: 0.45rem; letter-spacing: 0.04em; }
+.officer-meta {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin-top: 0.7rem;
+}
+.officer-meta .bday-chip { font-size: 0.72rem; padding: 0.32rem 0.85rem; }
 
 #student-none { color: var(--muted); padding: 1.5rem; text-align: center; }
 

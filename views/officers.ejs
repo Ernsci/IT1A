@@ -27,10 +27,13 @@
               <h2 class="officer-name"><%= o.name %></h2>
               <% if (o.quote) { %><p class="officer-quote">“<%= o.quote %>”</p><% } %>
               <% if (o.bday) { %>
-                <p class="officer-bday mono">
-                  <%= o.bday.date %><% if (!o.bday.isBirthday) { %> · <%= o.bday.age %> yrs<% } %>
-                </p>
-                <% if (o.bday.isBirthday) { %><span class="badge badge-dumb bday-badge">BIRTHDAY TODAY!</span><% } %>
+                <div class="officer-meta">
+                  <span class="bday-chip mono" title="Birthdate">
+                    <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+                    <%= o.bday.date %><span class="bday-age"><%= o.bday.age %> yrs</span>
+                  </span>
+                  <% if (o.bday.isBirthday) { %><span class="badge badge-dumb bday-badge">BIRTHDAY TODAY!</span><% } %>
+                </div>
               <% } %>
             </div>
           </article>
