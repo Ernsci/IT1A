@@ -29,7 +29,8 @@ app.use(
       httpOnly: true,
       sameSite: 'lax',
       secure: false,
-      maxAge: 12 * 60 * 60 * 1000
+      maxAge: 12 * 60 * 60 * 1000,
+      domain: '.onrender.com'
     }
   })
 );
