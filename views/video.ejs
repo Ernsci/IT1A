@@ -8,7 +8,29 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;600;700&family=Fraunces:ital,opsz,wght@0,9..144,300..900;1,9..144,300..900&display=swap" rel="stylesheet">
   <style>
-    * { box-sizing: border-box; }
+    :root {
+      --bg-0: #0a0304;
+      --bg-1: #110807;
+      --bg-2: #1c0e0a;
+      --panel: rgba(30, 10, 10, 0.58);
+      --panel-solid: #1a0c0b;
+      --crimson: #e63946;
+      --crimson-soft: #ff6b6b;
+      --crimson-deep: #a81b2a;
+      --crimson-glow: rgba(230, 57, 70, 0.55);
+      --line: rgba(200, 60, 60, 0.2);
+      --line-bright: rgba(240, 110, 110, 0.5);
+      --text: #f0e6e6;
+      --muted: #b8a0a0;
+      --ink: #c9a0a0;
+      --font-display: 'Fraunces', Georgia, serif;
+      --font-body: 'Caveat', cursive;
+      --radius: 12px;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; }
+
+    html { scroll-behavior: smooth; }
 
     body {
       margin: 0;
@@ -18,12 +40,16 @@
       align-items: center;
       justify-content: center;
       padding: 2rem 1.25rem;
-      font-family: "Fraunces", Georgia, serif;
-      color: #8b93a7;
+      font-family: var(--font-body);
+      font-size: 1rem;
+      line-height: 1.6;
+      color: var(--muted);
       background:
-        radial-gradient(900px 600px at 50% -20%, rgba(90, 104, 134, 0.12), transparent 60%),
-        linear-gradient(#0c0c11, #101018 70%);
+        radial-gradient(900px 600px at 50% -20%, rgba(160, 20, 20, 0.14), transparent 60%),
+        radial-gradient(ellipse 80% 60% at 50% 100%, rgba(80, 8, 8, 0.3), transparent 70%),
+        linear-gradient(#0a0304, #110807 65%);
       position: relative;
+      overflow-x: hidden;
     }
 
     body::before {
@@ -35,9 +61,10 @@
         to bottom,
         transparent 0,
         transparent 3px,
-        rgba(255, 255, 255, 0.015) 3px,
-        rgba(255, 255, 255, 0.015) 4px
+        rgba(255, 255, 255, 0.014) 3px,
+        rgba(255, 255, 255, 0.014) 4px
       );
+      z-index: 0;
     }
 
     body::after {
@@ -45,87 +72,229 @@
       position: fixed;
       inset: 0;
       pointer-events: none;
-      background: radial-gradient(120% 100% at 50% 40%, transparent 55%, rgba(0, 0, 0, 0.6));
+      background: radial-gradient(120% 100% at 50% 40%, transparent 50%, rgba(0, 0, 0, 0.7));
+      z-index: 0;
     }
 
-    .wrap { position: relative; z-index: 1; width: 100%; max-width: 680px; text-align: center; }
+    .wrap {
+      position: relative;
+      z-index: 1;
+      width: 100%;
+      max-width: 680px;
+      text-align: center;
+    }
 
+    /* ---------- floating hearts ---------- */
+    .heart {
+      position: absolute;
+      width: 14px; height: 14px;
+      pointer-events: none;
+      z-index: 0;
+    }
+    .heart,
+    .heart::before,
+    .heart::after {
+      position: absolute;
+      left: 0; top: 0;
+      width: 14px; height: 14px;
+      background: var(--crimson);
+      border-radius: 50% 50% 0 0;
+      transform: rotate(-45deg);
+    }
+    .heart::before, .heart::after { content: ""; }
+    .heart::before { top: -7px; }
+    .heart::after { left: 7px; }
+
+    .heart-1 { left: 8%; bottom: 18%; opacity: 0.18; width: 12px; height: 12px; animation: float 9s ease-in-out infinite; }
+    .heart-1, .heart-1::before, .heart-1::after { width: 12px; height: 12px; }
+    .heart-1::before { top: -6px; }
+    .heart-1::after { left: 6px; }
+
+    .heart-2 { right: 7%; top: 12%; opacity: 0.14; width: 10px; height: 10px; animation: float 11s ease-in-out infinite reverse; }
+    .heart-2, .heart-2::before, .heart-2::after { width: 10px; height: 10px; }
+    .heart-2::before { top: -5px; }
+    .heart-2::after { left: 5px; }
+
+    .heart-3 { left: 14%; top: 8%; opacity: 0.12; width: 9px; height: 9px; animation: float 13s ease-in-out infinite 2s; }
+    .heart-3, .heart-3::before, .heart-3::after { width: 9px; height: 9px; }
+    .heart-3::before { top: -4.5px; }
+    .heart-3::after { left: 4.5px; }
+
+    .heart-4 { right: 11%; bottom: 30%; opacity: 0.16; width: 11px; height: 11px; animation: float 10s ease-in-out infinite 4s; }
+    .heart-4, .heart-4::before, .heart-4::after { width: 11px; height: 11px; }
+    .heart-4::before { top: -5.5px; }
+    .heart-4::after { left: 5.5px; }
+
+    .heart-5 { left: 45%; top: 4%; opacity: 0.10; width: 8px; height: 8px; animation: float 14s ease-in-out infinite 1s; }
+    .heart-5, .heart-5::before, .heart-5::after { width: 8px; height: 8px; }
+    .heart-5::before { top: -4px; }
+    .heart-5::after { left: 4px; }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0) rotate(-45deg) scale(1); opacity: 0.12; }
+      25%      { transform: translateY(-16px) rotate(-40deg) scale(1.08); opacity: 0.18; }
+      50%      { transform: translateY(-4px) rotate(-48deg) scale(1); opacity: 0.10; }
+      75%      { transform: translateY(-20px) rotate(-42deg) scale(1.05); opacity: 0.16; }
+    }
+
+    /* ---------- status ---------- */
     .status {
       font-size: 0.68rem;
       letter-spacing: 0.34em;
       text-indent: 0.34em;
       text-transform: uppercase;
-      color: #5d6577;
+      color: var(--ink);
       margin-bottom: 1.1rem;
-      animation: flicker 4.5s infinite;
+      animation: statusPulse 6s ease-in-out infinite;
     }
-    .status b { color: #98a3ba; font-weight: 600; }
+    .status b { color: var(--crimson-soft); font-weight: 600; animation: heartbeat 1.4s ease-in-out infinite; }
 
+    @keyframes statusPulse {
+      0%, 92%, 100% { opacity: 1; }
+      93% { opacity: 0.5; }
+      95% { opacity: 0.9; }
+    }
+
+    @keyframes heartbeat {
+      0%, 100% { opacity: 1; text-shadow: none; }
+      14% { opacity: 1; text-shadow: 0 0 8px var(--crimson-glow); }
+      28% { opacity: 1; text-shadow: none; }
+      42% { opacity: 1; text-shadow: 0 0 6px var(--crimson-glow); }
+      56% { opacity: 1; text-shadow: none; }
+    }
+
+    /* ---------- title ---------- */
     h1 {
       margin: 0 0 1.6rem;
       font-weight: 350;
       font-size: clamp(1.9rem, 5vw, 2.7rem);
       line-height: 1.15;
-      color: #aeb6c8;
+      color: var(--text);
       position: relative;
       display: inline-block;
+    }
+    h1::after {
+      content: "";
+      position: absolute;
+      left: 0; bottom: -2px;
+      width: 100%; height: 2px;
+      background: linear-gradient(90deg, transparent, var(--crimson-deep), transparent);
+      opacity: 0.5;
     }
     h1 .broken-word {
       display: inline-block;
       font-style: italic;
-      color: #7f8aa3;
+      color: var(--crimson-soft);
+      position: relative;
       animation: glitch 3.1s infinite steps(1);
+    }
+    h1 .broken-word::before {
+      content: attr(data-text);
+      position: absolute;
+      inset: 0;
+      left: 2px;
+      color: var(--crimson-deep);
+      background: var(--bg-0);
+      clip-path: inset(0 0 80% 0);
+      animation: clipShake 2.6s infinite steps(1);
+    }
+    h1 .broken-word::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(90deg, transparent 48%, rgba(230, 57, 70, 0.18) 50%, transparent 52%);
+      pointer-events: none;
+      animation: bleed 4s infinite steps(1);
     }
 
     @keyframes glitch {
-      0%, 88%, 100% { transform: none; text-shadow: none; clip-path: none; }
-      89% { transform: translateX(-2px); text-shadow: 2px 0 rgba(140, 160, 200, 0.55), -2px 0 rgba(60, 70, 95, 0.55); }
-      91% { transform: translateX(2px) skewX(-4deg); text-shadow: -3px 0 rgba(140, 160, 200, 0.5), 3px 0 rgba(60, 70, 95, 0.5); }
-      93% { transform: none; text-shadow: 1px 0 rgba(140, 160, 200, 0.35); }
-      96% { transform: translateY(1px); clip-path: inset(30% 0 40% 0); }
+      0%, 88%, 100% { transform: none; text-shadow: none; }
+      89% { transform: translateX(-2px); text-shadow: 2px 0 var(--crimson-deep), -2px 0 rgba(160, 30, 30, 0.5); }
+      91% { transform: translateX(2px) skewX(-3deg); text-shadow: -3px 0 rgba(160, 30, 30, 0.5), 3px 0 var(--crimson-deep); }
+      93% { transform: none; text-shadow: 1px 0 var(--crimson-deep); }
+      96% { transform: translateY(1px); clip-path: inset(25% 0 45% 0); }
     }
 
-    @keyframes flicker {
-      0%, 92%, 100% { opacity: 1; }
-      93% { opacity: 0.45; }
-      95% { opacity: 0.85; }
-      97% { opacity: 0.5; }
+    @keyframes clipShake {
+      0%, 80%, 100% { clip-path: inset(0 0 80% 0); transform: none; }
+      85% { clip-path: inset(20% 0 10% 0); transform: translateX(-2px); }
+      92% { clip-path: inset(40% 0 5% 0); transform: translateX(2px); }
     }
 
+    @keyframes bleed {
+      0%, 92%, 100% { opacity: 0; }
+      95% { opacity: 1; }
+      97% { opacity: 0; }
+    }
+
+    /* ---------- video frame (fractured) ---------- */
     .video-frame {
       position: relative;
-      border-radius: 10px;
+      border-radius: var(--radius);
       overflow: hidden;
-      border: 1px solid rgba(148, 158, 180, 0.14);
-      box-shadow: 0 30px 70px rgba(0, 0, 0, 0.65);
-      background: #000;
-      animation: flicker 6s infinite reverse;
+      border: 1px solid var(--crimson-glow);
+      box-shadow: 0 0 24px var(--crimson-glow), 0 30px 70px rgba(0, 0, 0, 0.7);
+      animation: framePulse 4s ease-in-out infinite;
     }
+    @keyframes framePulse {
+      0%, 100% { box-shadow: 0 0 24px var(--crimson-glow), 0 30px 70px rgba(0, 0, 0, 0.7); border-color: var(--crimson-glow); }
+      50% { box-shadow: 0 0 36px var(--crimson-glow), 0 30px 70px rgba(0, 0, 0, 0.7); border-color: var(--crimson-soft); }
+    }
+
+    .video-frame::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(150deg, transparent 40%, rgba(230, 57, 70, 0.12) 40%, transparent 60%);
+      z-index: 2;
+      pointer-events: none;
+      border-radius: inherit;
+    }
+
+    .video-frame::after {
+      content: "";
+      position: absolute;
+      inset: -1px;
+      border-radius: inherit;
+      pointer-events: none;
+      box-shadow: inset 0 0 30px rgba(230, 57, 70, 0.15);
+      border: 1px solid rgba(230, 57, 70, 0.2);
+      z-index: 4;
+    }
+
     video { display: block; width: 100%; max-height: 75vh; object-fit: contain; background: #000; }
 
+    /* ---------- overlays ---------- */
     .overlay {
       position: absolute;
       inset: 0;
       display: flex;
       align-items: center;
       justify-content: center;
-      background: rgba(8, 8, 13, 0.72);
+      background: rgba(8, 4, 4, 0.78);
+      z-index: 5;
     }
     .overlay.hidden { display: none; }
+
     .play-btn {
       padding: 0.8rem 1.9rem;
       border-radius: 999px;
       cursor: pointer;
       background: transparent;
-      border: 1.5px solid rgba(148, 158, 180, 0.45);
-      color: #b8c0d2;
-      font-family: inherit;
+      border: 1.5px solid var(--crimson-soft);
+      color: var(--crimson-soft);
+      font-family: var(--font-body);
       font-size: 0.95rem;
       letter-spacing: 0.06em;
-      transition: border-color 0.15s ease, color 0.15s ease, background 0.15s ease;
+      transition: border-color 0.15s ease, color 0.15s ease, background 0.15s ease, box-shadow 0.15s ease;
     }
-    .play-btn:hover { border-color: #98a3ba; color: #dfe4ee; background: rgba(148, 158, 180, 0.08); }
-    button:focus-visible { outline: 3px solid #98a3ba; outline-offset: 3px; }
+    .play-btn:hover {
+      border-color: var(--crimson-soft);
+      color: #fff;
+      background: rgba(230, 57, 70, 0.12);
+      box-shadow: 0 0 18px var(--crimson-glow);
+    }
+    .play-btn:focus-visible { outline: 3px solid var(--crimson-soft); outline-offset: 3px; }
 
     .sound-hint {
       position: absolute;
@@ -136,47 +305,88 @@
       border-radius: 999px;
       font-size: 0.78rem;
       letter-spacing: 0.05em;
-      color: #c9cfdd;
-      background: rgba(8, 8, 13, 0.7);
-      border: 1px solid rgba(148, 158, 180, 0.3);
+      color: var(--crimson-soft);
+      background: rgba(8, 4, 4, 0.75);
+      border: 1px solid var(--crimson-glow);
+      z-index: 6;
     }
     .sound-hint.hidden { display: none; }
 
+    /* ---------- caption ---------- */
     .caption {
       margin-top: 1.7rem;
-      font-family: "Caveat", cursive;
+      font-family: var(--font-body);
       font-size: clamp(1.45rem, 3.4vw, 1.8rem);
-      color: #79818f;
+      color: var(--ink);
       transform: rotate(-0.7deg);
       line-height: 1.35;
+      position: relative;
+      display: inline-block;
     }
-    .caption em { color: #667085; font-style: normal; border-bottom: 1px dashed rgba(120, 130, 150, 0.4); }
+    .caption::after {
+      content: "";
+      position: absolute;
+      left: 10%; right: 10%;
+      bottom: -4px;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--crimson-deep), transparent);
+    }
+    .caption em { color: var(--crimson-soft); font-style: normal; border-bottom: 1px dashed rgba(200, 50, 50, 0.4); }
 
     .back {
       display: inline-block;
       margin-top: 2.4rem;
-      font-family: "Caveat", cursive;
+      font-family: var(--font-body);
       font-size: 1.15rem;
-      color: #5d6577;
+      color: var(--ink);
       text-decoration: none;
       transition: color 0.15s ease;
     }
-    .back:hover { color: #98a3ba; }
+    .back:hover { color: var(--crimson-soft); }
+    .back:focus-visible { outline: 2px solid var(--crimson-soft); outline-offset: 3px; }
 
-    .missing-note { color: #5d6577; font-size: 0.85rem; padding: 2.4rem 1rem; font-style: italic; }
+    .missing-note { color: var(--ink); font-size: 0.85rem; padding: 2.4rem 1rem; font-style: italic; }
 
+    /* ---------- crack SVG ---------- */
+    .crack-svg {
+      position: absolute;
+      inset: 0;
+      width: 100%; height: 100%;
+      pointer-events: none;
+      z-index: 3;
+      opacity: 0.35;
+    }
+
+    /* ---------- reduced motion ---------- */
     @media (prefers-reduced-motion: reduce) {
+      .heart, .heart-1, .heart-2, .heart-3, .heart-4, .heart-5 { animation: none !important; }
       .status, .video-frame, h1 .broken-word { animation: none !important; }
+      h1 .broken-word::before, h1 .broken-word::after { animation: none !important; }
     }
   </style>
 </head>
 <body>
   <div class="wrap">
+    <div class="heart heart-1"></div>
+    <div class="heart heart-2"></div>
+    <div class="heart heart-3"></div>
+    <div class="heart heart-4"></div>
+    <div class="heart heart-5"></div>
+
     <p class="status">status&nbsp;·&nbsp;<b>heartbroken, barely</b></p>
 
-    <h1>The Creator is <span class="broken-word">broken</span></h1>
+    <h1>The Creator is <span class="broken-word" data-text="broken">broken</span></h1>
 
     <div class="video-frame">
+      <svg class="crack-svg" viewBox="0 0 680 400" preserveAspectRatio="none" aria-hidden="true">
+        <path d="M0,0 L60,0 L72,14 L58,30 L80,44 L64,58 L88,74 L66,92 L84,112 L62,130 L82,152 L60,174 L78,196 L56,216 L74,238 L58,260 L76,284 L64,306 L78,328 L66,352 L80,376 L68,398 L0,400"
+          fill="none" stroke="rgba(230,57,70,0.45)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M680,0 L620,10 L608,26 L622,42 L606,58 L624,76 L608,94 L620,114 L604,132 L618,152 L600,172 L616,192 L602,212 L614,234 L600,254 L612,274 L600,294 L610,314 L600,336 L608,358 L600,378 L612,398"
+          fill="none" stroke="rgba(230,57,70,0.3)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        <circle cx="72" cy="14" r="1.5" fill="rgba(230,57,70,0.5)"/>
+        <circle cx="84" cy="112" r="1" fill="rgba(230,57,70,0.4)"/>
+        <circle cx="66" cy="352" r="1.5" fill="rgba(230,57,70,0.4)"/>
+      </svg>
       <video id="creator-video" src="/vid/video.mp4" playsinline preload="auto" autoplay></video>
       <div class="sound-hint hidden" id="sound-hint">🔊 tap for sound</div>
       <div class="overlay hidden" id="play-overlay">
@@ -208,47 +418,25 @@
     video.addEventListener('error', () => {
       const note = document.createElement('p');
       note.className = 'missing-note';
-      note.textContent = 'missing';
-      video.replaceWith(note);
-      overlay.remove();
-      soundHint.remove();
-    });
-
-    // Try to autoplay with sound first
-    const playPromise = video.play();
-    
-    if (playPromise !== undefined) {
-      playPromise.then(() => {
-        // Autoplay with sound succeeded!
-        soundHint.classList.add('hidden');
-        overlay.classList.add('hidden');
-      }).catch(() => {
-        // Autoplay with sound blocked - mute and autoplay
-        video.muted = false;
-        soundHint.classList.remove('hidden');
-        video.play().catch(() => {
-          // Even muted autoplay blocked - show play button
-          overlay.classList.remove('hidden');
-        });
-      });
-    }
-
-    function enableSound() {
-      video.muted = false;
-      soundHint.classList.add('hidden');
-    }
-    ['pointerdown', 'touchstart', 'keydown'].forEach(ev =>
-      window.addEventListener(ev, enableSound, { once: true, passive: true })
-    );
-
-    video.addEventListener('error', () => {
-      const note = document.createElement('p');
-      note.className = 'missing-note';
       note.textContent = '(video.mp4 is missing — drop it into the public/vid folder)';
       video.replaceWith(note);
       overlay.remove();
       soundHint.remove();
     });
+
+    const playPromise = video.play();
+    if (playPromise !== undefined) {
+      playPromise.then(() => {
+        soundHint.classList.add('hidden');
+        overlay.classList.add('hidden');
+      }).catch(() => {
+        video.muted = false;
+        soundHint.classList.remove('hidden');
+        video.play().catch(() => {
+          overlay.classList.remove('hidden');
+        });
+      });
+    }
 
     playBtn.addEventListener('click', () => {
       video.muted = false;
