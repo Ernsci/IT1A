@@ -6,3 +6,6 @@ npm-debug.log*
 .DS_Store
 
 feature.txt
+
+tmp_*.log
+*.log
