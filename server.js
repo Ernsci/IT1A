@@ -8,6 +8,16 @@ const adinRoutes = require('./routes/adin');
 const apiRoutes = require('./routes/api');
 const { getSite } = require('./lib/site');
 
+if (!process.env.ADMIN_PASSWORD) {
+  console.error('FATAL: ADMIN_PASSWORD environment variable is not set');
+  process.exit(1);
+}
+
+if (!process.env.SESSION_SECRET) {
+  console.error('FATAL: SESSION_SECRET environment variable is not set');
+  process.exit(1);
+}
+
 const app = express();
 const PORT = process.env.PORT || 3000;
 const IS_PROD = process.env.NODE_ENV === 'production';
