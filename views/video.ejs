@@ -11,6 +11,8 @@
   <link rel="stylesheet" href="/css/video.css">
 </head>
 <body class="video-body">
+  <%- include('partials/nav', { active: 'video', site }) %>
+  
   <div class="video-container">
     <video class="video-main" src="/vid/video.mp4" autoplay loop playsinline muted></video>
     <div class="video-overlay"></div>
