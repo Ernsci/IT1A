@@ -197,6 +197,20 @@ router.post('/photos', upload.single('file'), async (req, res) => {
   }
 });
 
+router.delete('/photos/:id', async (req, res) => {
+  if (!dbCheck(res)) return;
+  try {
+    const { id } = req.params;
+    const { data: existing } = await supabase.from('photos').select('path').eq('id', id).maybeSingle();
+    const { error } = await supabase.from('photos').delete().eq('id', id);
+    if (error) throw error;
+    if (existing && existing.path) await deleteFile(existing.path);
+    res.json({ ok: true });
+  } catch (err) {
+    fail(res, err);
+  }
+});
+
 router.post('/albums', upload.single('file'), async (req, res) => {
   if (!dbCheck(res)) return;
   try {
