@@ -70,7 +70,7 @@ router.delete('/notes/:id', async (req, res) => {
   }
 });
 
-router.post('/albums', upload.single('file'), async (req, res) => {
+router.post('/notes', uploadPdfMiddleware.single('file'), async (req, res) => {
   if (!dbCheck(res)) return;
   try {
     if (!req.file) return res.status(400).json({ error: 'Pick a PDF to upload.' });
@@ -89,20 +89,6 @@ router.post('/albums', upload.single('file'), async (req, res) => {
       .single();
     if (error) throw error;
     res.status(201).json({ item: data });
-  } catch (err) {
-    fail(res, err);
-  }
-});
-
-router.delete('/notes/:id', async (req, res) => {
-  if (!dbCheck(res)) return;
-  try {
-    const { id } = req.params;
-    const { data: existing } = await supabase.from('notes').select('path').eq('id', id).maybeSingle();
-    const { error } = await supabase.from('notes').delete().eq('id', id);
-    if (error) throw error;
-    if (existing && existing.path) await deleteFile(existing.path);
-    res.json({ ok: true });
   } catch (err) {
     fail(res, err);
   }
