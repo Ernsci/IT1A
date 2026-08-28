@@ -119,6 +119,84 @@ router.get('/albums', async (req, res) => {
   }
 });
 
+router.get('/photos', async (req, res) => {
+  if (!dbCheck(res)) return;
+  try {
+    const { data, error } = await supabase.from('photos').select('*').order('created_at', { ascending: false });
+    if (error) throw error;
+    res.json({ items: data || [] });
+  } catch (err) {
+    fail(res, err);
+  }
+});
+
+router.get('/posts', async (req, res) => {
+  if (!dbCheck(res)) return;
+  try {
+    const { data, error } = await supabase.from('posts').select('*').order('created_at', { ascending: false });
+    if (error) throw error;
+    res.json({ items: data || [] });
+  } catch (err) {
+    fail(res, err);
+  }
+});
+
+router.get('/officers', async (req, res) => {
+  if (!dbCheck(res)) return;
+  try {
+    const { data, error } = await supabase.from('officers').select('*').order('sort_order', { ascending: true });
+    if (error) throw error;
+    res.json({ items: data || [] });
+  } catch (err) {
+    fail(res, err);
+  }
+});
+
+router.get('/students', async (req, res) => {
+  if (!dbCheck(res)) return;
+  try {
+    const { data, error } = await supabase.from('students').select('*').order('created_at', { ascending: true });
+    if (error) throw error;
+    res.json({ items: data || [] });
+  } catch (err) {
+    fail(res, err);
+  }
+});
+
+router.get('/notes', async (req, res) => {
+  if (!dbCheck(res)) return;
+  try {
+    const { data, error } = await supabase.from('notes').select('*').order('created_at', { ascending: false });
+    if (error) throw error;
+    res.json({ items: data || [] });
+  } catch (err) {
+    fail(res, err);
+  }
+});
+
+router.post('/photos', upload.single('file'), async (req, res) => {
+  if (!dbCheck(res)) return;
+  try {
+    if (!req.file) return res.status(400).json({ error: 'Picture required.' });
+    const { url, path } = await uploadImage(req.file, 'photos');
+    const { data, error } = await supabase
+      .from('photos')
+      .insert({ 
+        title: str(req.body.title), 
+        caption: str(req.body.caption), 
+        album: str(req.body.album) || 'General', 
+        url, 
+        path 
+      })
+      .select()
+      .single();
+    if (error) throw error;
+    res.status(201).json({ item: data });
+  } catch (err) {
+    fail(res, err);
+  }
+});
+
 router.post('/albums', upload.single('file'), async (req, res) => {
   if (!dbCheck(res)) return;
   try {

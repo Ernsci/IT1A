@@ -28,9 +28,8 @@ app.use(
     cookie: {
       httpOnly: true,
       sameSite: 'lax',
-      secure: false,
-      maxAge: 12 * 60 * 60 * 1000,
-      domain: '.onrender.com'
+      secure: IS_PROD,
+      maxAge: 12 * 60 * 60 * 1000
     }
   })
 );
