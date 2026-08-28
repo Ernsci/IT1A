@@ -1,12 +1,13 @@
 const express = require('express');
 const router = express.Router();
 const multer = require('multer');
-const { requireAuthApi } = require('../lib/auth');
+const { requireAuthApi, apiRateLimiter } = require('../lib/auth');
 const { supabase, dbReady } = require('../lib/supabase');
 const { uploadImage, uploadPdf, deleteFile } = require('../lib/storage');
 const { getSite, saveSite, getGroupPhoto, saveGroupPhoto } = require('../lib/site');
 
 router.use(requireAuthApi);
+router.use(apiRateLimiter);
 
 const upload = multer({
   storage: multer.memoryStorage(),
