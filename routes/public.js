@@ -51,44 +51,123 @@ router.get('/', async (req, res) => {
 });
 
 router.get('/pictures', async (req, res) => {
+  const page = Math.max(1, parseInt(req.query.page) || 1);
+  const limit = Math.min(50, Math.max(1, parseInt(req.query.limit) || 24));
+  const offset = (page - 1) * limit;
+
   let photos = [];
   let albums = [];
+  let totalPhotos = 0;
   if (dbReady()) {
-    const [p, a] = await Promise.all([
-      dbQuery(supabase.from('photos').select('*').order('created_at', { ascending: false }), res),
-      dbQuery(supabase.from('albums').select('*').order('sort_order', { ascending: true }), res)
+    const [p, a, countRes] = await Promise.all([
+      dbQuery(supabase.from('photos').select('*').order('created_at', { ascending: false }).range(offset, offset + limit - 1), res),
+      dbQuery(supabase.from('albums').select('*').order('sort_order', { ascending: true }), res),
+      dbQuery(supabase.from('photos').select('id', { count: 'exact', head: true }), res)
     ]);
     photos = p.rows;
     albums = a.rows;
+    totalPhotos = countRes.count || 0;
   }
-  res.render('pictures', { title: 'Pictures', active: 'pictures', photos, albums });
+  res.render('pictures', { 
+    title: 'Pictures', 
+    active: 'pictures', 
+    photos, 
+    albums,
+    pagination: {
+      page,
+      limit,
+      total: totalPhotos,
+      totalPages: Math.ceil(totalPhotos / limit)
+    }
+  });
 });
 
 router.get('/officers', async (req, res) => {
-  let officers = dbReady()
-    ? (await dbQuery(supabase.from('officers').select('*').order('sort_order', { ascending: true }), res)).rows
-    : [];
-  officers = officers.map(function (o) {
-    return { ...o, bday: birthdayInfo(o.birthdate) };
+  const page = Math.max(1, parseInt(req.query.page) || 1);
+  const limit = Math.min(50, Math.max(1, parseInt(req.query.limit) || 24));
+  const offset = (page - 1) * limit;
+
+  let officers = [];
+  let totalOfficers = 0;
+  if (dbReady()) {
+    const [p, countRes] = await Promise.all([
+      dbQuery(supabase.from('officers').select('*').order('sort_order', { ascending: true }).range(offset, offset + limit - 1), res),
+      dbQuery(supabase.from('officers').select('id', { count: 'exact', head: true }), res)
+    ]);
+    officers = p.rows.map(function (o) {
+      return { ...o, bday: birthdayInfo(o.birthdate) };
+    });
+    totalOfficers = countRes.count || 0;
+  }
+  res.render('officers', { 
+    title: 'Officers', 
+    active: 'officers', 
+    officers,
+    pagination: {
+      page,
+      limit,
+      total: totalOfficers,
+      totalPages: Math.ceil(totalOfficers / limit)
+    }
   });
-  res.render('officers', { title: 'Officers', active: 'officers', officers });
 });
 
 router.get('/students', async (req, res) => {
-  let students = dbReady()
-    ? (await dbQuery(supabase.from('students').select('*').order('created_at', { ascending: true }), res)).rows
-    : [];
-  students = students.map(function (s) {
-    return { ...s, bday: birthdayInfo(s.birthdate) };
+  const page = Math.max(1, parseInt(req.query.page) || 1);
+  const limit = Math.min(50, Math.max(1, parseInt(req.query.limit) || 24));
+  const offset = (page - 1) * limit;
+
+  let students = [];
+  let totalStudents = 0;
+  if (dbReady()) {
+    const [p, countRes] = await Promise.all([
+      dbQuery(supabase.from('students').select('*').order('created_at', { ascending: true }).range(offset, offset + limit - 1), res),
+      dbQuery(supabase.from('students').select('id', { count: 'exact', head: true }), res)
+    ]);
+    students = p.rows.map(function (s) {
+      return { ...s, bday: birthdayInfo(s.birthdate) };
+    });
+    totalStudents = countRes.count || 0;
+  }
+  res.render('students', { 
+    title: 'Students', 
+    active: 'students', 
+    students,
+    pagination: {
+      page,
+      limit,
+      total: totalStudents,
+      totalPages: Math.ceil(totalStudents / limit)
+    }
   });
-  res.render('students', { title: 'Students', active: 'students', students });
 });
 
 router.get('/notes', async (req, res) => {
-  const notes = dbReady()
-    ? (await dbQuery(supabase.from('notes').select('*').order('created_at', { ascending: false }), res)).rows
-    : [];
-  res.render('notes', { title: 'Notes', active: 'notes', notes });
+  const page = Math.max(1, parseInt(req.query.page) || 1);
+  const limit = Math.min(50, Math.max(1, parseInt(req.query.limit) || 20));
+  const offset = (page - 1) * limit;
+
+  let notes = [];
+  let totalNotes = 0;
+  if (dbReady()) {
+    const [p, countRes] = await Promise.all([
+      dbQuery(supabase.from('notes').select('*').order('created_at', { ascending: false }).range(offset, offset + limit - 1), res),
+      dbQuery(supabase.from('notes').select('id', { count: 'exact', head: true }), res)
+    ]);
+    notes = p.rows;
+    totalNotes = countRes.count || 0;
+  }
+  res.render('notes', { 
+    title: 'Notes', 
+    active: 'notes', 
+    notes,
+    pagination: {
+      page,
+      limit,
+      total: totalNotes,
+      totalPages: Math.ceil(totalNotes / limit)
+    }
+  });
 });
 
 router.get('/notes/:id/download', async (req, res) => {
