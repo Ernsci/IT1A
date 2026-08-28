@@ -132,6 +132,73 @@ router.get('/posts', async (req, res) => {
   }
 });
 
+router.post('/posts', upload.single('file'), async (req, res) => {
+  if (!dbCheck(res)) return;
+  try {
+    const title = str(req.body.title);
+    const category = str(req.body.category);
+    const body = str(req.body.body);
+    const eventDate = str(req.body.event_date) || null;
+    if (!title || !category) return res.status(400).json({ error: 'Title and category are required.' });
+    const patch = { title, category, body, event_date: eventDate };
+    if (req.file) {
+      const image = await uploadImage(req.file, 'posts');
+      patch.cover_url = image.url;
+      patch.cover_path = image.path;
+    }
+    const { data, error } = await supabase
+      .from('posts')
+      .insert(patch)
+      .select()
+      .single();
+    if (error) throw error;
+    res.status(201).json({ item: data });
+  } catch (err) {
+    fail(res, err);
+  }
+});
+
+router.put('/posts/:id', upload.single('file'), async (req, res) => {
+  if (!dbCheck(res)) return;
+  const { id } = req.params;
+  if (!isValidUUID(id)) return res.status(400).json({ error: 'Invalid ID format' });
+  try {
+    const patch = { 
+      title: str(req.body.title), 
+      category: str(req.body.category), 
+      body: str(req.body.body), 
+      event_date: str(req.body.event_date) || null 
+    };
+    if (req.file) {
+      const { data: existing } = await supabase.from('posts').select('cover_path').eq('id', id).maybeSingle();
+      const image = await uploadImage(req.file, 'posts');
+      patch.cover_url = image.url;
+      patch.cover_path = image.path;
+      if (existing && existing.cover_path) await deleteFile(existing.cover_path);
+    }
+    const { data, error } = await supabase.from('posts').update(patch).eq('id', id).select().single();
+    if (error) throw error;
+    res.json({ item: data });
+  } catch (err) {
+    fail(res, err);
+  }
+});
+
+router.delete('/posts/:id', async (req, res) => {
+  if (!dbCheck(res)) return;
+  const { id } = req.params;
+  if (!isValidUUID(id)) return res.status(400).json({ error: 'Invalid ID format' });
+  try {
+    const { data: existing } = await supabase.from('posts').select('cover_path').eq('id', id).maybeSingle();
+    const { error } = await supabase.from('posts').delete().eq('id', id);
+    if (error) throw error;
+    if (existing && existing.cover_path) await deleteFile(existing.cover_path);
+    res.json({ ok: true });
+  } catch (err) {
+    fail(res, err);
+  }
+});
+
 router.get('/officers', async (req, res) => {
   if (!dbCheck(res)) return;
   try {
@@ -253,12 +320,21 @@ router.put('/albums/:id', upload.single('file'), async (req, res) => {
   if (!dbCheck(res)) return;
   try {
     const { id } = req.params;
+    if (!isValidUUID(id)) return res.status(400).json({ error: 'Invalid ID format' });
     const name = str(req.body.name);
     if (!name) return res.status(400).json({ error: 'Album name is required.' });
-    const { data: existing } = await supabase.from('albums').select('name').eq('id', id).maybeSingle();
+    const { data: existing } = await supabase.from('albums').select('name, cover_path').eq('id', id).maybeSingle();
+    if (!existing) return res.status(404).json({ error: 'Album not found' });
+    const patch = { name, description: str(req.body.description), sort_order: parseInt(req.body.sort_order, 10) || 0 };
+    if (req.file) {
+      const image = await uploadImage(req.file, 'albums');
+      patch.cover_url = image.url;
+      patch.cover_path = image.path;
+      if (existing && existing.cover_path) await deleteFile(existing.cover_path);
+    }
     const { data, error } = await supabase
       .from('albums')
-      .update({ name, description: str(req.body.description), sort_order: parseInt(req.body.sort_order, 10) || 0 })
+      .update(patch)
       .eq('id', id)
       .select()
       .single();
