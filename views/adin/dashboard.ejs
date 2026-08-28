@@ -306,6 +306,26 @@
           <span class="field-label mono">caption / message</span>
           <textarea name="caption" rows="3" maxlength="280" placeholder="Why are they awesome this week?"></textarea>
         </label>
+        <label class="field field-check">
+          <input type="checkbox" name="custom_style" id="spotlight-custom">
+          <span class="field-label mono">customize appearance</span>
+        </label>
+        <div class="field-row" id="spotlight-style" hidden>
+          <label class="field">
+            <span class="field-label mono">card color</span>
+            <input type="color" name="card_color" value="#a855f7">
+          </label>
+          <label class="field field-grow">
+            <span class="field-label mono">font</span>
+            <select name="font_family" id="spotlight-font">
+              <option value="">— theme default —</option>
+            </select>
+          </label>
+          <label class="field">
+            <span class="field-label mono">text color</span>
+            <input type="color" name="text_color" value="#f3eefc">
+          </label>
+        </div>
         <div class="form-actions">
           <button class="btn btn-primary" type="submit">Post to Home</button>
         </div>

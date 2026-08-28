@@ -28,7 +28,7 @@
       <p class="kicker mono">// student_1a_of_the_week</p>
       <h2>Spotlight</h2>
     </div>
-    <article class="spotlight-card card reveal">
+    <article class="spotlight-card card reveal"<% if (spotlight.card_color) { %> style="--spot:<%= spotlight.card_color %>"<% } %>>
       <div class="spotlight-media">
         <% if (spotlight.person_photo) { %>
           <img class="spotlight-photo" src="<%= spotlight.person_photo %>" alt="<%= spotlight.person_name %>" loading="lazy">
@@ -39,9 +39,12 @@
       </div>
       <div class="spotlight-body">
         <p class="spotlight-title mono"><%= spotlight.title %></p>
-        <h3 class="spotlight-name"><%= spotlight.person_name %></h3>
+        <% var nameStyle = '';
+           if (spotlight.font_family) nameStyle += 'font-family:' + spotlight.font_family + ';';
+           if (spotlight.text_color) nameStyle += 'color:' + spotlight.text_color + ';'; %>
+        <h3 class="spotlight-name"<% if (nameStyle) { %> style="<%= nameStyle %>"<% } %>><%= spotlight.person_name %></h3>
         <% if (spotlight.person_role) { %><span class="spotlight-role mono"><%= spotlight.person_role %></span><% } %>
-        <% if (spotlight.caption) { %><p class="spotlight-caption"><%= spotlight.caption %></p><% } %>
+        <% if (spotlight.caption) { %><p class="spotlight-caption"<% if (nameStyle) { %> style="<%= nameStyle %>"<% } %>><%= spotlight.caption %></p><% } %>
         <p class="spotlight-date mono">week of <%= new Date(spotlight.created_at).toLocaleDateString('en-PH', { year: 'numeric', month: 'long', day: 'numeric' }) %></p>
       </div>
     </article>

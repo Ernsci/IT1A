@@ -528,6 +528,9 @@ router.post('/spotlight', async (req, res) => {
     const role = personType === 'officer'
       ? (person.position || 'Officer')
       : (person.nickname || 'Student');
+    const cardColor = str(req.body.card_color);
+    const fontFamily = str(req.body.font_family);
+    const textColor = str(req.body.text_color);
     const { data, error } = await supabase
       .from('spotlight')
       .insert({
@@ -537,7 +540,10 @@ router.post('/spotlight', async (req, res) => {
         person_photo: person.photo_url || '',
         person_role: role,
         title,
-        caption
+        caption,
+        card_color: cardColor,
+        font_family: fontFamily,
+        text_color: textColor
       })
       .select()
       .single();

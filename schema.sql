@@ -80,8 +80,15 @@ create table if not exists spotlight (
   person_role text default '',
   title text not null default 'Student 1A of the Week',
   caption text default '',
+  card_color text default '',
+  font_family text default '',
+  text_color text default '',
   created_at timestamptz not null default now()
 );
+
+alter table spotlight add column if not exists card_color text default '';
+alter table spotlight add column if not exists font_family text default '';
+alter table spotlight add column if not exists text_color text default '';
 
 alter table spotlight enable row level security;
 

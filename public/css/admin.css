@@ -157,6 +157,10 @@ img { max-width: 100%; display: block; }
   box-shadow: var(--shadow-neon);
 }
 .field input[type="date"] { color-scheme: dark; }
+
+.field-check { flex-direction: row; align-items: center; gap: 0.55rem; }
+.field-check input[type="checkbox"] { width: auto; accent-color: var(--neon); }
+.field-check .field-label { text-transform: none; letter-spacing: 0.04em; }
 .field input[type="file"] {
   color: var(--muted);
   font-size: 0.85rem;

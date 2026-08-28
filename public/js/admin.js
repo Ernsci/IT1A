@@ -389,8 +389,35 @@
   }
 
   /* ---------- spotlight person dropdown ---------- */
-  function populateSpotlightPeople() {
-    var sel = $('#spotlight-person');
+  var SPOTLIGHT_FONTS = [
+    { value: 'Orbitron, sans-serif', label: 'Orbitron' },
+    { value: 'Chakra Petch, sans-serif', label: 'Chakra Petch' },
+    { value: 'JetBrains Mono, monospace', label: 'JetBrains Mono' },
+    { value: 'Fraunces, serif', label: 'Fraunces' },
+    { value: 'Caveat, cursive', label: 'Caveat' },
+    { value: 'Bebas Neue, sans-serif', label: 'Bebas Neue' },
+    { value: 'Anton, sans-serif', label: 'Anton' },
+    { value: 'Pacifico, cursive', label: 'Pacifico' },
+    { value: 'Lobster, cursive', label: 'Lobster' },
+    { value: 'Playfair Display, serif', label: 'Playfair Display' },
+    { value: 'Press Start 2P, monospace', label: 'Press Start 2P' },
+    { value: 'Georgia, serif', label: 'Georgia' },
+    { value: 'Courier New, monospace', label: 'Courier New' }
+  ];
+
+  function populateSpotlightFonts() {
+    var sel = $('#spotlight-font');
+    if (!sel) return;
+    SPOTLIGHT_FONTS.forEach(function (f) {
+      var o = document.createElement('option');
+      o.value = f.value;
+      o.textContent = f.label;
+      if (f.value) o.style.fontFamily = f.value;
+      sel.append(o);
+    });
+  }
+
+  function populateSpotlightPeople() {    var sel = $('#spotlight-person');
     if (!sel) return;
     var prev = sel.value;
     sel.textContent = '';
@@ -419,6 +446,18 @@
 
   var spotlightForm = $('#form-spotlight');
   if (spotlightForm) {
+    var spotlightCustom = $('#spotlight-custom');
+    var spotlightStyleWrap = $('#spotlight-style');
+    function syncSpotlightCustom() {
+      var on = spotlightCustom && spotlightCustom.checked;
+      if (spotlightStyleWrap) spotlightStyleWrap.hidden = !on;
+    }
+    if (spotlightCustom) {
+      spotlightCustom.addEventListener('change', syncSpotlightCustom);
+      syncSpotlightCustom();
+    }
+    populateSpotlightFonts();
+
     spotlightForm.addEventListener('submit', function (e) {
       e.preventDefault();
       var personVal = spotlightForm.querySelector('[name="person_id"]').value;
@@ -427,11 +466,15 @@
         return;
       }
       var parts = personVal.split(':');
+      var customOn = spotlightCustom ? spotlightCustom.checked : false;
       var payload = {
         person_type: parts[0],
         person_id: parts[1],
         title: spotlightForm.querySelector('[name="title"]').value.trim(),
-        caption: spotlightForm.querySelector('[name="caption"]').value.trim()
+        caption: spotlightForm.querySelector('[name="caption"]').value.trim(),
+        card_color: customOn ? spotlightForm.querySelector('[name="card_color"]').value : '',
+        font_family: customOn ? spotlightForm.querySelector('[name="font_family"]').value : '',
+        text_color: customOn ? spotlightForm.querySelector('[name="text_color"]').value : ''
       };
       var btn = spotlightForm.querySelector('[type="submit"]');
       btn.disabled = true;
@@ -443,6 +486,7 @@
         .then(function () {
           toast('Posted to home page.');
           spotlightForm.reset();
+          syncSpotlightCustom();
           return api('/adin/api/spotlight');
         })
         .then(function (body) {
