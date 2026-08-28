@@ -28,7 +28,7 @@
     return d.toLocaleDateString('en-PH', { year: 'numeric', month: 'short', day: 'numeric' });
   }
 
-  var state = { posts: [], photos: [], officers: [], students: [], notes: [], albums: [] };
+  var state = { posts: [], photos: [], officers: [], students: [], notes: [], albums: [], spotlight: [] };
 
   function api(path, options) {
     return fetch(path, options).then(function (res) {
@@ -40,12 +40,13 @@
   }
 
   function loadAll() {
-    ['posts', 'photos', 'officers', 'students', 'notes', 'albums'].forEach(function (kind) {
+    ['posts', 'photos', 'officers', 'students', 'notes', 'albums', 'spotlight'].forEach(function (kind) {
       api('/adin/api/' + kind)
         .then(function (body) {
           state[kind] = body.items || [];
           renderList(kind);
           if (kind === 'albums' || kind === 'photos') fillAlbumSelect();
+          if (kind === 'officers' || kind === 'students') populateSpotlightPeople();
         })
         .catch(function (err) { toast(err.message, false); });
     });
@@ -157,6 +158,33 @@
       del.dataset.act = 'del';
       del.dataset.id = item.id;
       del.dataset.kind = 'notes';
+      actions.append(del);
+      li.append(actions);
+      return true;
+    },
+    spotlight: function (item, li) {
+      var isCurrent = state.spotlight[0] && state.spotlight[0].id === item.id;
+      if (item.person_photo) {
+        li.append(el('img', 'row-thumb row-thumb-round'));
+        li.querySelector('.row-thumb').src = item.person_photo;
+      } else {
+        li.append(el('span', 'row-initial', (item.person_name || '?').charAt(0).toUpperCase()));
+      }
+      var box = el('div', 'row-main');
+      if (isCurrent) box.append(el('span', 'badge badge-activity', 'CURRENT'));
+      box.append(el('p', 'row-title', item.title || 'Student 1A of the Week'));
+      var metaBits = [item.person_name];
+      if (item.person_role) metaBits.push(item.person_role);
+      box.append(el('p', 'row-meta mono', metaBits.join(' · ')));
+      if (item.caption) box.append(el('p', 'row-sub', item.caption));
+      box.append(el('p', 'row-meta mono', 'posted ' + fmtDate(item.created_at)));
+      li.append(box);
+      var actions = el('div', 'row-actions');
+      var del = el('button', 'btn btn-danger btn-sm', 'Delete');
+      del.type = 'button';
+      del.dataset.act = 'del';
+      del.dataset.id = item.id;
+      del.dataset.kind = 'spotlight';
       actions.append(del);
       li.append(actions);
       return true;
@@ -358,6 +386,73 @@
       sel.append(o);
     });
     if (names.indexOf(current) !== -1) sel.value = current;
+  }
+
+  /* ---------- spotlight person dropdown ---------- */
+  function populateSpotlightPeople() {
+    var sel = $('#spotlight-person');
+    if (!sel) return;
+    var prev = sel.value;
+    sel.textContent = '';
+    var placeholder = document.createElement('option');
+    placeholder.value = '';
+    placeholder.textContent = '— choose officer or student —';
+    sel.append(placeholder);
+    function addGroup(label, list, type) {
+      if (!list || !list.length) return;
+      var og = document.createElement('optgroup');
+      og.label = label;
+      list.forEach(function (p) {
+        var o = document.createElement('option');
+        o.value = type + ':' + p.id;
+        var sub = type === 'officer' ? p.position : (p.nickname || 'Student');
+        o.textContent = p.name + (sub ? ' — ' + sub : '');
+        og.append(o);
+      });
+      sel.append(og);
+    }
+    addGroup('Officers', state.officers, 'officer');
+    addGroup('Students', state.students, 'student');
+    var stillThere = Array.prototype.some.call(sel.options, function (o) { return o.value === prev; });
+    if (stillThere) sel.value = prev;
+  }
+
+  var spotlightForm = $('#form-spotlight');
+  if (spotlightForm) {
+    spotlightForm.addEventListener('submit', function (e) {
+      e.preventDefault();
+      var personVal = spotlightForm.querySelector('[name="person_id"]').value;
+      if (!personVal || personVal.indexOf(':') === -1) {
+        toast('Pick a person first.', false);
+        return;
+      }
+      var parts = personVal.split(':');
+      var payload = {
+        person_type: parts[0],
+        person_id: parts[1],
+        title: spotlightForm.querySelector('[name="title"]').value.trim(),
+        caption: spotlightForm.querySelector('[name="caption"]').value.trim()
+      };
+      var btn = spotlightForm.querySelector('[type="submit"]');
+      btn.disabled = true;
+      api('/adin/api/spotlight', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      })
+        .then(function () {
+          toast('Posted to home page.');
+          spotlightForm.reset();
+          return api('/adin/api/spotlight');
+        })
+        .then(function (body) {
+          state.spotlight = body.items || [];
+          renderList('spotlight');
+          populateSpotlightPeople();
+        })
+        .catch(function (err) { toast(err.message, false); })
+        .finally(function () { btn.disabled = false; });
+    });
   }
 
   /* ---------- group photo (special page) ---------- */

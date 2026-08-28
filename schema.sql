@@ -71,6 +71,20 @@ alter table officers  add column if not exists birthdate date;
 alter table students  add column if not exists birthdate date;
 alter table students  add column if not exists motto text default '';
 
+create table if not exists spotlight (
+  id uuid primary key default gen_random_uuid(),
+  person_type text not null check (person_type in ('officer', 'student')),
+  person_id uuid not null,
+  person_name text not null,
+  person_photo text default '',
+  person_role text default '',
+  title text not null default 'Student 1A of the Week',
+  caption text default '',
+  created_at timestamptz not null default now()
+);
+
+alter table spotlight enable row level security;
+
 alter table settings enable row level security;
 alter table officers  enable row level security;
 alter table students  enable row level security;

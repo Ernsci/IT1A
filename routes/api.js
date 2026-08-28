@@ -488,6 +488,79 @@ router.delete('/students/:id', async (req, res) => {
   }
 });
 
+router.get('/spotlight', async (req, res) => {
+  if (!dbCheck(res)) return;
+  try {
+    const { data, error } = await supabase
+      .from('spotlight')
+      .select('*')
+      .order('created_at', { ascending: false })
+      .limit(50);
+    if (error) throw error;
+    res.json({ items: data || [] });
+  } catch (err) {
+    console.error('spotlight list failed:', err.message);
+    res.json({ items: [] });
+  }
+});
+
+router.post('/spotlight', async (req, res) => {
+  if (!dbCheck(res)) return;
+  try {
+    const personType = str(req.body.person_type);
+    const personId = str(req.body.person_id);
+    const title = str(req.body.title) || 'Student 1A of the Week';
+    const caption = str(req.body.caption);
+    if (personType !== 'officer' && personType !== 'student') {
+      return res.status(400).json({ error: 'Pick a person type.' });
+    }
+    if (!isValidUUID(personId)) {
+      return res.status(400).json({ error: 'Pick a valid person.' });
+    }
+    const table = personType === 'officer' ? 'officers' : 'students';
+    const { data: person, error: perr } = await supabase
+      .from(table)
+      .select('*')
+      .eq('id', personId)
+      .maybeSingle();
+    if (perr) throw perr;
+    if (!person) return res.status(404).json({ error: 'Person not found.' });
+    const role = personType === 'officer'
+      ? (person.position || 'Officer')
+      : (person.nickname || 'Student');
+    const { data, error } = await supabase
+      .from('spotlight')
+      .insert({
+        person_type: personType,
+        person_id: personId,
+        person_name: person.name,
+        person_photo: person.photo_url || '',
+        person_role: role,
+        title,
+        caption
+      })
+      .select()
+      .single();
+    if (error) throw error;
+    res.status(201).json({ item: data });
+  } catch (err) {
+    fail(res, err);
+  }
+});
+
+router.delete('/spotlight/:id', async (req, res) => {
+  if (!dbCheck(res)) return;
+  const { id } = req.params;
+  if (!isValidUUID(id)) return res.status(400).json({ error: 'Invalid ID format' });
+  try {
+    const { error } = await supabase.from('spotlight').delete().eq('id', id);
+    if (error) throw error;
+    res.json({ ok: true });
+  } catch (err) {
+    fail(res, err);
+  }
+});
+
 router.get('/settings', async (req, res) => {
   res.json({ site: await getSite() });
 });

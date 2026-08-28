@@ -33,6 +33,7 @@ async function dbQuery(query, res) {
 router.get('/', async (req, res) => {
   let posts = [];
   let stats = { photos: 0, officers: 0, students: 0 };
+  let spotlight = null;
   if (dbReady()) {
     const [postsRes, photosRes, officersRes, studentsRes] = await Promise.all([
       dbQuery(supabase.from('posts').select('*').order('created_at', { ascending: false }).limit(6), res),
@@ -46,8 +47,18 @@ router.get('/', async (req, res) => {
       officers: officersRes.count,
       students: studentsRes.count
     };
+    try {
+      const spRes = await dbQuery(
+        supabase.from('spotlight').select('*').order('created_at', { ascending: false }).limit(1),
+        res
+      );
+      spotlight = spRes.rows[0] || null;
+    } catch (err) {
+      console.error('spotlight load failed:', err.message);
+      spotlight = null;
+    }
   }
-  res.render('home', { title: 'Home', active: 'home', posts, stats });
+  res.render('home', { title: 'Home', active: 'home', posts, stats, spotlight });
 });
 
 router.get('/pictures', async (req, res) => {

@@ -36,6 +36,7 @@
     <button class="adm-tab" type="button" data-tab="officers">Officers</button>
     <button class="adm-tab" type="button" data-tab="students">Students</button>
     <button class="adm-tab" type="button" data-tab="notes">Notes</button>
+    <button class="adm-tab" type="button" data-tab="spotlight">Spotlight</button>
     <button class="adm-tab" type="button" data-tab="settings">Settings</button>
   </nav>
 
@@ -285,6 +286,31 @@
           <button class="btn btn-primary" type="submit">Save Settings</button>
         </div>
       </form>
+    </section>
+
+    <section class="adm-pane" id="pane-spotlight" aria-label="Spotlight">
+      <form class="adm-form card" id="form-spotlight">
+        <h2 class="adm-form-title mono">post_student_1a_of_the_week</h2>
+        <p class="adm-hint">Picks a person from <span class="mono">officers</span> or <span class="mono">students</span>, adds a caption, and pins them to the home page. The latest post is what visitors see.</p>
+        <label class="field">
+          <span class="field-label mono">person *</span>
+          <select name="person_id" id="spotlight-person" required>
+            <option value="">— choose officer or student —</option>
+          </select>
+        </label>
+        <label class="field">
+          <span class="field-label mono">title</span>
+          <input type="text" name="title" maxlength="80" placeholder="Student 1A of the Week">
+        </label>
+        <label class="field">
+          <span class="field-label mono">caption / message</span>
+          <textarea name="caption" rows="3" maxlength="280" placeholder="Why are they awesome this week?"></textarea>
+        </label>
+        <div class="form-actions">
+          <button class="btn btn-primary" type="submit">Post to Home</button>
+        </div>
+      </form>
+      <div class="adm-list" id="list-spotlight" aria-live="polite"></div>
     </section>
 
   </main>

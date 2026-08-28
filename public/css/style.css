@@ -420,6 +420,84 @@ a { color: var(--neon-soft); }
   overflow: hidden;
 }
 
+/* ---------- spotlight (student 1A of the week) ---------- */
+
+.spotlight-card {
+  display: flex;
+  gap: 1.8rem;
+  align-items: center;
+  max-width: 920px;
+  margin: 0 auto;
+  padding: 1.8rem 2rem;
+  border-color: var(--line-bright);
+  background: linear-gradient(160deg, rgba(38, 16, 66, 0.82), rgba(20, 8, 38, 0.9));
+  box-shadow: var(--shadow-neon);
+  position: relative;
+  overflow: hidden;
+}
+.spotlight-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(120% 150% at 0% 0%, rgba(232, 121, 249, 0.14), transparent 55%);
+  pointer-events: none;
+}
+
+.spotlight-media { position: relative; flex-shrink: 0; z-index: 1; }
+
+.spotlight-photo {
+  width: clamp(120px, 18vw, 168px);
+  height: clamp(120px, 18vw, 168px);
+  border-radius: 24px;
+  object-fit: cover;
+  border: 1px solid var(--line-bright);
+  box-shadow: 0 0 30px rgba(168, 85, 247, 0.5);
+}
+.spotlight-photo-fallback {
+  display: grid;
+  place-items: center;
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-size: 2.6rem;
+  color: #0d0518;
+  background: linear-gradient(135deg, var(--neon), var(--magenta));
+}
+
+.spotlight-badge {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  font-size: 0.6rem;
+  letter-spacing: 0.16em;
+  color: #0d0518;
+  background: linear-gradient(135deg, var(--neon), var(--magenta));
+  border-radius: 999px;
+  padding: 0.25rem 0.7rem;
+  box-shadow: 0 0 14px rgba(232, 121, 249, 0.5);
+}
+
+.spotlight-body { display: flex; flex-direction: column; gap: 0.45rem; min-width: 0; z-index: 1; }
+.spotlight-title { color: var(--magenta); font-size: 0.78rem; letter-spacing: 0.18em; text-transform: uppercase; }
+.spotlight-name { font-family: var(--font-display); font-weight: 800; font-size: clamp(1.5rem, 4vw, 2.1rem); letter-spacing: 0.02em; line-height: 1.1; }
+.spotlight-role {
+  align-self: flex-start;
+  font-size: 0.66rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--neon-soft);
+  border: 1px solid rgba(192, 132, 252, 0.5);
+  background: rgba(168, 85, 247, 0.1);
+  border-radius: 999px;
+  padding: 0.25rem 0.8rem;
+}
+.spotlight-caption { color: var(--muted); font-size: 1rem; line-height: 1.55; white-space: pre-line; }
+.spotlight-date { color: var(--muted); font-size: 0.72rem; letter-spacing: 0.08em; margin-top: 0.2rem; }
+
+@media (max-width: 620px) {
+  .spotlight-card { flex-direction: column; text-align: center; }
+  .spotlight-role { align-self: center; }
+}
+
 /* ---------- terminal / about ---------- */
 
 .terminal { overflow: hidden; max-width: 860px; margin: 0 auto; }

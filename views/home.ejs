@@ -22,6 +22,32 @@
     </div>
   </section>
 
+  <% if (spotlight) { %>
+  <section class="section spotlight-section" aria-label="Student 1A of the Week">
+    <div class="section-head reveal">
+      <p class="kicker mono">// student_1a_of_the_week</p>
+      <h2>Spotlight</h2>
+    </div>
+    <article class="spotlight-card card reveal">
+      <div class="spotlight-media">
+        <% if (spotlight.person_photo) { %>
+          <img class="spotlight-photo" src="<%= spotlight.person_photo %>" alt="<%= spotlight.person_name %>" loading="lazy">
+        <% } else { %>
+          <div class="spotlight-photo spotlight-photo-fallback"><%= (spotlight.person_name || '?').charAt(0).toUpperCase() %></div>
+        <% } %>
+        <span class="spotlight-badge mono">★ FEATURED</span>
+      </div>
+      <div class="spotlight-body">
+        <p class="spotlight-title mono"><%= spotlight.title %></p>
+        <h3 class="spotlight-name"><%= spotlight.person_name %></h3>
+        <% if (spotlight.person_role) { %><span class="spotlight-role mono"><%= spotlight.person_role %></span><% } %>
+        <% if (spotlight.caption) { %><p class="spotlight-caption"><%= spotlight.caption %></p><% } %>
+        <p class="spotlight-date mono">week of <%= new Date(spotlight.created_at).toLocaleDateString('en-PH', { year: 'numeric', month: 'long', day: 'numeric' }) %></p>
+      </div>
+    </article>
+  </section>
+  <% } %>
+
   <section class="section" id="activities">
     <div class="section-head reveal">
       <p class="kicker mono">// latest_transmissions</p>
