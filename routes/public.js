@@ -196,4 +196,8 @@ router.get('/special', async (req, res) => {
   res.render('special', { title: 'Special', active: 'special', groupPhoto });
 });
 
+router.get('/video', async (req, res) => {
+  res.render('video', { title: 'Video', active: 'video' });
+});
+
 module.exports = router;
