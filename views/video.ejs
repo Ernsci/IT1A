@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>the video · IT1A</title>
+  <title>IT1A</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;600;700&family=Fraunces:ital,opsz,wght@0,9..144,300..900;1,9..144,300..900&display=swap" rel="stylesheet">
@@ -174,7 +174,7 @@
   <div class="wrap">
     <p class="status">status&nbsp;·&nbsp;<b>heartbroken, barely</b></p>
 
-    <h1>the heart is <span class="broken-word">broken</span></h1>
+    <h1>The Creator is <span class="broken-word">broken</span></h1>
 
     <div class="video-frame">
       <video id="creator-video" src="/vid/video.mp4" playsinline preload="auto" autoplay></video>
@@ -184,7 +184,7 @@
       </div>
     </div>
 
-    <p class="caption">move on kana, <em>hindi kana mahal</em></p>
+    <p class="caption">I wont fall in love, <em>again</em></p>
 
     <a class="back" href="/">&larr; back to home</a>
   </div>
@@ -208,7 +208,7 @@
     video.addEventListener('error', () => {
       const note = document.createElement('p');
       note.className = 'missing-note';
-      note.textContent = '(video.mp4 is missing — drop it into the public/vid folder)';
+      note.textContent = 'missing';
       video.replaceWith(note);
       overlay.remove();
       soundHint.remove();
@@ -224,7 +224,7 @@
         overlay.classList.add('hidden');
       }).catch(() => {
         // Autoplay with sound blocked - mute and autoplay
-        video.muted = true;
+        video.muted = false;
         soundHint.classList.remove('hidden');
         video.play().catch(() => {
           // Even muted autoplay blocked - show play button
