@@ -7,6 +7,16 @@
   var year = document.getElementById('year');
   if (year) year.textContent = String(new Date().getFullYear());
 
+  /* format upload date as MM/DD/YYYY - HH:MM (viewer local time) */
+  function formatDateTime(iso) {
+    if (!iso) return '';
+    var d = new Date(iso);
+    if (isNaN(d.getTime())) return '';
+    var p = function (n) { return (n < 10 ? '0' : '') + n; };
+    return p(d.getMonth() + 1) + '/' + p(d.getDate()) + '/' + d.getFullYear() +
+      ' - ' + p(d.getHours()) + ':' + p(d.getMinutes());
+  }
+
   /* mobile nav */
   var toggle = document.querySelector('.nav-toggle');
   var links = document.getElementById('nav-links');
@@ -106,8 +116,15 @@
     var lbImg = lightbox.querySelector('.lightbox-img');
     var lbTitle = lightbox.querySelector('.lightbox-title');
     var lbCaption = lightbox.querySelector('.lightbox-caption');
+    var lbDate = lightbox.querySelector('.lightbox-date');
     var items = Array.prototype.slice.call(document.querySelectorAll('.photo-btn'));
     var current = 0;
+
+    /* fill grid date stamps */
+    document.querySelectorAll('.photo-card').forEach(function (card) {
+      var dateEl = card.querySelector('.photo-date');
+      if (dateEl && card.dataset.date) dateEl.textContent = formatDateTime(card.dataset.date);
+    });
 
     function show(i) {
       var btn = items[i];
@@ -119,6 +136,7 @@
       lbImg.alt = img.alt;
       lbTitle.textContent = card ? (card.querySelector('.photo-title') || {}).textContent || '' : '';
       lbCaption.textContent = card ? (card.querySelector('.photo-caption') || {}).textContent || '' : '';
+      lbDate.textContent = card && card.dataset.date ? formatDateTime(card.dataset.date) : '';
     }
 
     items.forEach(function (btn) {

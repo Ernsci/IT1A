@@ -25,12 +25,13 @@
       </div>
       <div class="photo-grid" id="photo-grid">
         <% photos.forEach(function (ph, i) { %>
-          <figure class="photo-card card reveal" data-album="<%= ph.album %>">
+          <figure class="photo-card card reveal" data-album="<%= ph.album %>" data-date="<%= ph.created_at %>">
             <button class="photo-btn" type="button" data-index="<%= i %>" aria-label="Open photo: <%= ph.title || 'untitled' %>">
               <img src="<%= ph.url %>" alt="<%= ph.title || 'IT1A photo' %>" loading="lazy">
             </button>
             <figcaption>
               <span class="photo-title"><%= ph.title || 'Untitled' %></span>
+              <span class="photo-date mono"></span>
               <% if (ph.caption) { %><span class="photo-caption"><%= ph.caption %></span><% } %>
             </figcaption>
           </figure>
@@ -51,6 +52,7 @@
   <div class="lightbox-meta">
     <p class="lightbox-title"></p>
     <p class="lightbox-caption mono"></p>
+    <p class="lightbox-date mono"></p>
   </div>
   <div class="lightbox-nav">
     <button type="button" data-dir="-1" aria-label="Previous photo">←</button>

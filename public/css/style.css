@@ -566,6 +566,7 @@ a { color: var(--neon-soft); }
 .photo-card figcaption { padding: 0.75rem 1rem 0.9rem; display: flex; flex-direction: column; gap: 0.15rem; border-top: 1px solid var(--line); }
 .photo-title { font-weight: 600; font-size: 0.92rem; }
 .photo-caption { color: var(--muted); font-size: 0.8rem; }
+.photo-date { color: var(--muted); font-size: 0.68rem; letter-spacing: 0.04em; margin-top: 0.1rem; }
 
 .lightbox {
   border: 1px solid var(--line-bright);
@@ -582,6 +583,7 @@ a { color: var(--neon-soft); }
 .lightbox-meta { text-align: center; margin-top: 0.8rem; }
 .lightbox-title { font-weight: 600; }
 .lightbox-caption { color: var(--muted); font-size: 0.8rem; margin-top: 0.15rem; }
+.lightbox-date { color: var(--muted); font-size: 0.74rem; letter-spacing: 0.05em; margin-top: 0.1rem; }
 
 .lightbox-close {
   position: absolute;
