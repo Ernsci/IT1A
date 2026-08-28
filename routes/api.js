@@ -42,6 +42,10 @@ function str(v) {
   return typeof v === 'string' ? v.trim() : '';
 }
 
+function isValidUUID(v) {
+  return typeof v === 'string' && /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(v);
+}
+
 function fail(res, err) {
   console.error('api error:', err.message);
   res.status(500).json({ error: err.message });
@@ -58,8 +62,9 @@ const listOrder = {
 
 router.delete('/notes/:id', async (req, res) => {
   if (!dbCheck(res)) return;
+  const { id } = req.params;
+  if (!isValidUUID(id)) return res.status(400).json({ error: 'Invalid ID format' });
   try {
-    const { id } = req.params;
     const { data: existing } = await supabase.from('notes').select('path').eq('id', id).maybeSingle();
     const { error } = await supabase.from('notes').delete().eq('id', id);
     if (error) throw error;
@@ -185,8 +190,9 @@ router.post('/photos', upload.single('file'), async (req, res) => {
 
 router.delete('/photos/:id', async (req, res) => {
   if (!dbCheck(res)) return;
+  const { id } = req.params;
+  if (!isValidUUID(id)) return res.status(400).json({ error: 'Invalid ID format' });
   try {
-    const { id } = req.params;
     const { data: existing } = await supabase.from('photos').select('path').eq('id', id).maybeSingle();
     const { error } = await supabase.from('photos').delete().eq('id', id);
     if (error) throw error;
@@ -247,8 +253,9 @@ router.put('/albums/:id', upload.single('file'), async (req, res) => {
 
 router.delete('/albums/:id', async (req, res) => {
   if (!dbCheck(res)) return;
+  const { id } = req.params;
+  if (!isValidUUID(id)) return res.status(400).json({ error: 'Invalid ID format' });
   try {
-    const { id } = req.params;
     const { data: existing } = await supabase.from('albums').select('name').eq('id', id).maybeSingle();
     const { error } = await supabase.from('albums').delete().eq('id', id);
     if (error) throw error;
@@ -306,8 +313,9 @@ router.put('/officers/:id', upload.single('file'), async (req, res) => {
 
 router.delete('/officers/:id', async (req, res) => {
   if (!dbCheck(res)) return;
+  const { id } = req.params;
+  if (!isValidUUID(id)) return res.status(400).json({ error: 'Invalid ID format' });
   try {
-    const { id } = req.params;
     const { data: existing } = await supabase.from('officers').select('photo_path').eq('id', id).maybeSingle();
     const { error } = await supabase.from('officers').delete().eq('id', id);
     if (error) throw error;
@@ -361,8 +369,9 @@ router.put('/students/:id', upload.single('file'), async (req, res) => {
 
 router.delete('/students/:id', async (req, res) => {
   if (!dbCheck(res)) return;
+  const { id } = req.params;
+  if (!isValidUUID(id)) return res.status(400).json({ error: 'Invalid ID format' });
   try {
-    const { id } = req.params;
     const { data: existing } = await supabase.from('students').select('photo_path').eq('id', id).maybeSingle();
     const { error } = await supabase.from('students').delete().eq('id', id);
     if (error) throw error;
