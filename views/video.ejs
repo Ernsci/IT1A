@@ -177,7 +177,7 @@
     <h1>the heart is <span class="broken-word">broken</span></h1>
 
     <div class="video-frame">
-      <video id="creator-video" src="/vid/video.mp4" playsinline preload="auto"></video>
+      <video id="creator-video" src="/vid/video.mp4" playsinline preload="auto" autoplay></video>
       <div class="sound-hint hidden" id="sound-hint">🔊 tap for sound</div>
       <div class="overlay hidden" id="play-overlay">
         <button type="button" class="play-btn" id="play-btn">▶ play video</button>
@@ -214,10 +214,40 @@
       soundHint.remove();
     });
 
-    video.play().catch(() => {
-      video.muted = true;
-      soundHint.classList.remove('hidden');
-      video.play().catch(() => overlay.classList.remove('hidden'));
+    // Try to autoplay with sound first
+    const playPromise = video.play();
+    
+    if (playPromise !== undefined) {
+      playPromise.then(() => {
+        // Autoplay with sound succeeded!
+        soundHint.classList.add('hidden');
+        overlay.classList.add('hidden');
+      }).catch(() => {
+        // Autoplay with sound blocked - mute and autoplay
+        video.muted = true;
+        soundHint.classList.remove('hidden');
+        video.play().catch(() => {
+          // Even muted autoplay blocked - show play button
+          overlay.classList.remove('hidden');
+        });
+      });
+    }
+
+    function enableSound() {
+      video.muted = false;
+      soundHint.classList.add('hidden');
+    }
+    ['pointerdown', 'touchstart', 'keydown'].forEach(ev =>
+      window.addEventListener(ev, enableSound, { once: true, passive: true })
+    );
+
+    video.addEventListener('error', () => {
+      const note = document.createElement('p');
+      note.className = 'missing-note';
+      note.textContent = '(video.mp4 is missing — drop it into the public/vid folder)';
+      video.replaceWith(note);
+      overlay.remove();
+      soundHint.remove();
     });
 
     playBtn.addEventListener('click', () => {
