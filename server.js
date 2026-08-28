@@ -2,6 +2,7 @@ require('dotenv').config();
 const path = require('path');
 const express = require('express');
 const session = require('express-session');
+const FileStore = require('session-file-store')(session);
 
 const publicRoutes = require('./routes/public');
 const adinRoutes = require('./routes/adin');
@@ -35,6 +36,12 @@ app.use(
     secret: process.env.SESSION_SECRET || 'it1a-dev-secret-change-me',
     resave: false,
     saveUninitialized: false,
+    store: new FileStore({
+      path: path.join(__dirname, '.sessions'),
+      ttl: 12 * 60 * 60,
+      retries: 0,
+      logFn: () => {}
+    }),
     cookie: {
       httpOnly: true,
       sameSite: 'lax',
