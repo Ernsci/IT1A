@@ -21,15 +21,13 @@ function birthdayInfo(bd) {
   };
 }
 
-async function safe(query) {
-  try {
-    const { data, count, error } = await query;
-    if (error) throw error;
-    return { rows: data || [], count: count || 0 };
-  } catch (err) {
-    console.error('db query failed:', err.message);
-    return { rows: [], count: 0 };
+async function dbQuery(query, res) {
+  const { data, count, error } = await query;
+  if (error) {
+    console.error('db query failed:', error.message);
+    throw error;
   }
+  return { rows: data || [], count: count || 0 };
 }
 
 router.get('/', async (req, res) => {
@@ -37,10 +35,10 @@ router.get('/', async (req, res) => {
   let stats = { photos: 0, officers: 0, students: 0 };
   if (dbReady()) {
     const [postsRes, photosRes, officersRes, studentsRes] = await Promise.all([
-      safe(supabase.from('posts').select('*').order('created_at', { ascending: false }).limit(6)),
-      safe(supabase.from('photos').select('id', { count: 'exact', head: true })),
-      safe(supabase.from('officers').select('id', { count: 'exact', head: true })),
-      safe(supabase.from('students').select('id', { count: 'exact', head: true }))
+      dbQuery(supabase.from('posts').select('*').order('created_at', { ascending: false }).limit(6), res),
+      dbQuery(supabase.from('photos').select('id', { count: 'exact', head: true }), res),
+      dbQuery(supabase.from('officers').select('id', { count: 'exact', head: true }), res),
+      dbQuery(supabase.from('students').select('id', { count: 'exact', head: true }), res)
     ]);
     posts = postsRes.rows;
     stats = {
@@ -57,8 +55,8 @@ router.get('/pictures', async (req, res) => {
   let albums = [];
   if (dbReady()) {
     const [p, a] = await Promise.all([
-      safe(supabase.from('photos').select('*').order('created_at', { ascending: false })),
-      safe(supabase.from('albums').select('*').order('sort_order', { ascending: true }))
+      dbQuery(supabase.from('photos').select('*').order('created_at', { ascending: false }), res),
+      dbQuery(supabase.from('albums').select('*').order('sort_order', { ascending: true }), res)
     ]);
     photos = p.rows;
     albums = a.rows;
@@ -68,7 +66,7 @@ router.get('/pictures', async (req, res) => {
 
 router.get('/officers', async (req, res) => {
   let officers = dbReady()
-    ? (await safe(supabase.from('officers').select('*').order('sort_order', { ascending: true }))).rows
+    ? (await dbQuery(supabase.from('officers').select('*').order('sort_order', { ascending: true }), res)).rows
     : [];
   officers = officers.map(function (o) {
     return { ...o, bday: birthdayInfo(o.birthdate) };
@@ -78,7 +76,7 @@ router.get('/officers', async (req, res) => {
 
 router.get('/students', async (req, res) => {
   let students = dbReady()
-    ? (await safe(supabase.from('students').select('*').order('created_at', { ascending: true }))).rows
+    ? (await dbQuery(supabase.from('students').select('*').order('created_at', { ascending: true }), res)).rows
     : [];
   students = students.map(function (s) {
     return { ...s, bday: birthdayInfo(s.birthdate) };
@@ -88,7 +86,7 @@ router.get('/students', async (req, res) => {
 
 router.get('/notes', async (req, res) => {
   const notes = dbReady()
-    ? (await safe(supabase.from('notes').select('*').order('created_at', { ascending: false }))).rows
+    ? (await dbQuery(supabase.from('notes').select('*').order('created_at', { ascending: false }), res)).rows
     : [];
   res.render('notes', { title: 'Notes', active: 'notes', notes });
 });
