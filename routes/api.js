@@ -203,6 +203,31 @@ router.delete('/photos/:id', async (req, res) => {
   }
 });
 
+router.put('/photos/:id', upload.single('file'), async (req, res) => {
+  if (!dbCheck(res)) return;
+  const { id } = req.params;
+  if (!isValidUUID(id)) return res.status(400).json({ error: 'Invalid ID format' });
+  try {
+    const patch = { 
+      title: str(req.body.title), 
+      caption: str(req.body.caption), 
+      album: str(req.body.album) || 'General' 
+    };
+    if (req.file) {
+      const { data: existing } = await supabase.from('photos').select('path').eq('id', id).maybeSingle();
+      const photo = await uploadImage(req.file, 'photos');
+      patch.url = photo.url;
+      patch.path = photo.path;
+      if (existing && existing.path) await deleteFile(existing.path);
+    }
+    const { data, error } = await supabase.from('photos').update(patch).eq('id', id).select().single();
+    if (error) throw error;
+    res.json({ item: data });
+  } catch (err) {
+    fail(res, err);
+  }
+});
+
 router.post('/albums', upload.single('file'), async (req, res) => {
   if (!dbCheck(res)) return;
   try {
@@ -242,7 +267,11 @@ router.put('/albums/:id', upload.single('file'), async (req, res) => {
       throw error;
     }
     if (existing && existing.name && existing.name !== name) {
-      await supabase.from('photos').update({ album: name }).eq('album', existing.name);
+      const { error: photoErr } = await supabase.from('photos').update({ album: name }).eq('album', existing.name);
+      if (photoErr) {
+        console.error('Failed to update photos after album rename:', photoErr.message);
+        return res.status(500).json({ error: 'Album renamed but failed to update photos' });
+      }
     }
     res.json({ item: data });
   } catch (err) {
