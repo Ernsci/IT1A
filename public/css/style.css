@@ -926,31 +926,4 @@ a { color: var(--neon-soft); }
   .card, .btn, .photo-btn img, .chip { transition: none; }
 }
 
-/* background music toggle */
-.music-toggle {
-  position: fixed;
-  left: 1rem;
-  bottom: 1rem;
-  z-index: 60;
-  display: inline-flex;
-  align-items: center;
-  gap: 0.4rem;
-  padding: 0.5rem 0.85rem;
-  border: 1px solid var(--line-bright);
-  border-radius: 999px;
-  background: rgba(20, 10, 38, 0.82);
-  color: var(--text);
-  font: 600 0.72rem/1 var(--mono, ui-monospace, monospace);
-  letter-spacing: 0.06em;
-  cursor: pointer;
-  backdrop-filter: blur(6px);
-  transition: border-color 0.2s, box-shadow 0.2s, transform 0.15s;
-}
-.music-toggle:hover { border-color: var(--accent); box-shadow: 0 0 18px rgba(168, 85, 247, 0.35); transform: translateY(-1px); }
-.music-toggle .music-icon { font-size: 0.95rem; line-height: 1; }
-.music-toggle.is-playing .music-icon { color: var(--accent); animation: musicPulse 1.6s ease-in-out infinite; }
-.music-toggle.is-blocked { border-color: #ff5d8f; box-shadow: 0 0 14px rgba(255, 93, 143, 0.4); }
-@keyframes musicPulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.2); } }
-@media (prefers-reduced-motion: reduce) {
-  .music-toggle.is-playing .music-icon { animation: none; }
-}
+/* background music toggle removed per request */
